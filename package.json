@@ -1,0 +1,47 @@
+{
+  "name": "smart-agenda-api",
+  "version": "1.0.0",
+  "description": "Smart agenda é uma api criada para solucionar problemas de pequenos e médios negócios que ainda utilizam o whatsApp ou planilhas para agendar seus serviços. ",
+  "homepage": "https://github.com/kariel-martins/smart-agenda-api#readme",
+  "bugs": {
+    "url": "https://github.com/kariel-martins/smart-agenda-api/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kariel-martins/smart-agenda-api.git"
+  },
+  "license": "MIT",
+  "author": "Kariel Martins",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "cross-env": "^10.1.0",
+    "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.45.1",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.17.1",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "zod": "^4.3.5"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^25.0.9",
+    "@types/pg": "^8.16.0",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
+    "drizzle-kit": "^0.31.8",
+    "nodemon": "^3.1.11",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,22 @@
+networks:
+  smart_agenda:
+    driver: bridge
+
+volumes:
+  postgres_data: {}
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: smart-agenda_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: smart-agenda-database
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - smart_agenda
