@@ -1,8 +1,12 @@
-import { Router } from "express"
+import { Request, Response, Router } from "express"
 import { userRoute } from "./modules/Users/user.routes"
 
 const router = Router()
 
-router.use("/api/v1/users", userRoute)
+router.get("/", (_req: Request, res: Response) => {
+    res.status(200).send({message: "Rodando com sucesso!"})
+})
+
+router.use("/users", userRoute)
 
 export { router }

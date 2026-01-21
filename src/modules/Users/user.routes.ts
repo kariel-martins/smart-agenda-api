@@ -4,6 +4,6 @@ import { createUsers } from "./user.controller";
 
 const userRoute = Router()
 
-userRoute.post("/", validationCreateUsers, createUsers)
+userRoute.post("/signup", validationCreateUsers, createUsers)
 
 export { userRoute }

@@ -77,7 +77,7 @@ export const clients = pgTable("clients", {
 
 export const availabilities = pgTable("availabilities", {
   id: serial("id").primaryKey(),
-  professional_id: uuid("professional_id").references(() => professionals.id, {
+  professional_id: serial("professional_id").references(() => professionals.id, {
     onDelete: "cascade",
   }),
   day_of_week: text().notNull(),
@@ -97,7 +97,7 @@ export const appointment = pgTable("appointment", {
   businesses_id: uuid("businesses_id").references(() => businesses.id, {
     onDelete: "cascade",
   }),
-  professional_id: uuid("professional_id").references(() => professionals.id, {
+  professional_id: serial("professional_id").references(() => professionals.id, {
     onDelete: "cascade",
   }),
   client_id: uuid("client_id").references(() => clients.id, {

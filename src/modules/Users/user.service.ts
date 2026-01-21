@@ -1,27 +1,30 @@
+import { AppError } from "../../core/errors/AppError";
 import { ExecuteHandler } from "../../core/handlers/executeHandler";
 import { Masks } from "../../share/utils/masks";
-import { InsertUsers, Users } from "./dtos/users.dto.type";
+import { InsertUsers, registerUserData, Users } from "./dtos/users.dto.type";
 import { UserRepository } from "./user.repository";
 
 export class UserService {
-  private readonly execute: ExecuteHandler;
-  private readonly repo: UserRepository;
-  private mask = new Masks()
+  private mask = new Masks();
 
-  constructor() {
-    this.execute = new ExecuteHandler(true, "User");
-    this.repo = new UserRepository(this.execute);
-  }
+  constructor(
+    private readonly execute: ExecuteHandler,
+    private readonly repo: UserRepository,
+  ) {}
 
-  public RegisterUser(data:InsertUsers): Promise<Omit<Users, "password_hash">> {
+  public RegisterUser(
+    data: registerUserData,
+  ): Promise<Omit<Users, "password_hash">> {
     return this.execute.service(
       async () => {
-        const {password_hash, email, ...rest} = await this.repo.create(data)
+        if (data.password !== data.comfirmPassword) throw new AppError("Password não coincidem")
+        const password_hash = data.password
+        const { password_hash: password, email, ...rest } = await this.repo.create({password_hash, ...data});
         const result = {
-            email: this.mask.email(email),
-            ...rest
-        }
-        return result
+          email: this.mask.email(email),
+          ...rest,
+        };
+        return result;
       },
       "Erro ao executar RegisterUser",
       "users/service/user.service/RegisterUser",

@@ -1,8 +1,9 @@
 import { RequestHandler } from "express"
 import { UserService } from "./user.service"
 import { AppError } from "../../core/errors/AppError"
+import { makeUserService } from "./user.factory"
 
-const service = new UserService()
+const service = makeUserService()
 
 export const createUsers: RequestHandler = async (req, res) => {
     try {

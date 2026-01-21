@@ -1,6 +1,6 @@
 import { validation } from "../../../share/middlewares/Validation";
-import { z } from "zod"
 import { schemaVars } from "../../../share/utils/schemasVars";
+import { z } from "zod"
 
 export const validationCreateUsers = validation((getSchemas) => ({
     body: getSchemas(z.object({
