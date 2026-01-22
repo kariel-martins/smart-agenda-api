@@ -34,6 +34,19 @@ export const businesses = pgTable("businesses", {
     .default(sql`NOW()`),
 });
 
+export const refresh_tokens = pgTable("refresh_tokens", {
+  id: uuid().primaryKey().notNull().defaultRandom(),
+  user_id: uuid("user_id").references(() => users.id, {
+    onDelete: "cascade",
+  }).notNull(),
+  token_hash: text().notNull(),
+  created_at: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .default(sql`NOW()`),
+  expires_at: timestamp("expires_at", { withTimezone: true }),
+  revoked: boolean().notNull().default(false)
+})
+
 export const professionals = pgTable("professionals", {
   id: serial("id").primaryKey(),
   businesses_id: uuid("businesses_id").references(() => businesses.id, {

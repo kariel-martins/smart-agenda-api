@@ -20,7 +20,7 @@ function getRequireVars(key: string) {
 }
 
 export function env() {
-    const reqVars = ["PORT", "DATABASE_URL", "DEBUG", "FRONTEND_URL", "BACKEND_URL"]
+    const reqVars = ["PORT", "DATABASE_URL", "DEBUG", "FRONTEND_URL", "BACKEND_URL", "SECRET_KEY"]
 
     reqVars.forEach((key)=> {
         if (!process.env[key]) {
@@ -34,6 +34,7 @@ export function env() {
       debug: getRequireVars("DEBUG"),
       frontend_url: getRequireVars("FRONTEND_URL"),
       backend_url: getRequireVars("BACKEND_URL"),
+      jwtKey: getRequireVars("SECRET_KEY"),
     }
 
 }

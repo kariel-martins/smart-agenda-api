@@ -17,7 +17,7 @@
   "scripts": {
     "start:dev": "cross-env NODE_ENV=development  nodemon src/server.ts",
     "test": "jest --runInBand",
-    "start:db": "npx drizzle-kit"
+    "db": "npx drizzle-kit"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

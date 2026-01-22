@@ -1,10 +1,10 @@
 import { RequestHandler } from "express";
+import { makeAuthService } from "./auth.factory";
 import { AppError } from "../../core/errors/AppError";
-import { makeUserService } from "./user.factory";
 
-const service = makeUserService();
+const service = makeAuthService();
 
-export const createUsers: RequestHandler = async (req, res) => {
+export const createUser: RequestHandler = async (req, res) => {
   try {
     const result = await service.RegisterUser(req.body);
 
@@ -17,7 +17,26 @@ export const createUsers: RequestHandler = async (req, res) => {
     }
     res.status(500).json({
       message: "Erro ao processar createUsers",
-      context: "users/controllers/users.controller.ts/createUsers",
+      context: "users/users.controller.ts/createUsers",
     });
   }
 };
+
+export const login = () => {
+
+}
+
+export const refresh = () => {
+
+}
+
+export const forgoutPassword = () => {
+
+}
+export const resetPassword = () => {
+
+} 
+
+export const logout = () => {
+
+}

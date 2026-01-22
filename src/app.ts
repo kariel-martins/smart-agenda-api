@@ -20,7 +20,7 @@ app.use(
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-app.use("/api/v1", router)
+app.use(router)
 app.use(errorHandler)
 
 setupSwagger(app);

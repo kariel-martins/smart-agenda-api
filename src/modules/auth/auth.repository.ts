@@ -1,0 +1,70 @@
+import { eq } from "drizzle-orm";
+import { AppError } from "../../core/errors/AppError";
+import { ExecuteHandler } from "../../core/handlers/executeHandler";
+import { db } from "../../database/Client";
+import { refresh_tokens, users } from "../../database/Schemas";
+import { InsertTokenRefresh, InsertUser, tokenRefresh, User } from "./dtos/auth.dto.types";
+
+export class AuthRepository {
+  constructor(private readonly execute: ExecuteHandler) {}
+
+  public create(data: InsertUser): Promise<User> {
+    return this.execute.repository(
+      async () => {
+        const result = await db.insert(users).values(data).returning();
+        return result[0];
+      },
+      "Erro ao executar create",
+      "auth/auth.repository/create",
+    );
+  }
+
+  public createToken(data: InsertTokenRefresh): Promise<tokenRefresh> {
+    return this.execute.repository(
+      async () => {
+        const result = await db.insert(refresh_tokens).values(data).returning()
+        return result[0]
+      },
+       "Erro ao executar createToken",
+      "auth/auth.repository/createToken",
+    )
+  }
+  public getByEmail(email: string): Promise<User> {
+    return this.execute.repository(
+      async () => {
+        const result = await db
+          .select()
+          .from(users)
+          .where(eq(users.email, email));
+
+        return result[0];
+      },
+      "Erro ao executar getByEmail",
+      "auth/auth.repository/getByEmail",
+    );
+  }
+
+  public async getUserNotExists(email: string): Promise<void | AppError> {
+    try {
+      const [result] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, email));
+      if (result)
+        throw new AppError(
+          "Usuário já existe",
+          400,
+          true,
+          "auth/repositories/auth.respository/getUserNotExists",
+        );
+    } catch (error) {
+      if (error instanceof AppError) return error;
+      throw new AppError(
+        "Erro ao verificar o usuário",
+        500,
+        true,
+        "auth/repositories/auth.respository/getUserNotExists",
+      );
+    }
+  }
+}

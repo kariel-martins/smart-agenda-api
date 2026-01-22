@@ -1,15 +1,15 @@
 import request from "supertest"
 import { app } from "../../../app" // seu express
 
-describe("POST /users", () => {
+describe("POST /Auth", () => {
 
   it("deve criar usuário", async () => {
 
     const response = await request(app)
-      .post("/api/v1/users/signup")
+      .post("/api/v1/auth/register")
       .send({
         name: "João",
-        email: "joaod@email.com",
+        email: "joao@email.com",
         password: "DevAdmin@26",
         comfirmPassword: "DevAdmin@26"
       })
