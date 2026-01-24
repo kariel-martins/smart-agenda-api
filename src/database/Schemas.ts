@@ -28,6 +28,7 @@ export const businesses = pgTable("businesses", {
   slug: text(),
   phone: integer().notNull(),
   email: text().unique().notNull(),
+  active: boolean().notNull().default(false),
   timezone: timestamp("timezome", { withTimezone: true }),
   created_at: timestamp("created_at", { withTimezone: true })
     .notNull()

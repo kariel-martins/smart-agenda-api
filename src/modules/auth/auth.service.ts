@@ -17,9 +17,7 @@ export class AuthService {
     private readonly repo: AuthRepository,
   ) {}
 
-  public RegisterUser(
-    data: createUsersData,
-  ): Promise<UserOmitPassword> {
+  public RegisterUser(data: createUsersData): Promise<UserOmitPassword> {
     return this.execute.service(
       async () => {
         if (data.password !== data.comfirmPassword)
@@ -75,6 +73,49 @@ export class AuthService {
       },
       "Erro ao executar login",
       "auth/service/auth.service/login",
+    );
+  }
+
+  public refresh(
+    refresh_token: string,
+    user_id: string,
+  ): Promise<{ accessToken: string, refreshToken: string }> {
+    return this.execute.service(
+      async () => {
+        let validToken = null;
+        const tokens = await this.repo.getTokenRefresh(user_id);
+
+        for (const token of tokens) {
+          const match = await this.crypt.verifyText(
+            refresh_token,
+            token.token_hash,
+          );
+
+          if (match) {
+            validToken = token;
+            break;
+          }
+        }
+
+        if (!validToken) throw new AppError("Refresh token inválido", 500);
+
+        await this.repo.updateRefreshToken(validToken?.id, {
+          revoked: true,
+        });
+
+        const newRefreshToken = await this.crypt.hashText(crypto.randomUUID());
+
+        await this.repo.createToken({ user_id, token_hash: newRefreshToken });
+
+        const newAccessToken = await this.jwtService.sign(
+          { purpose: "ACCESS_TOKEN", scope: crypto.randomUUID() },
+          15,
+        );
+
+        return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+      },
+      "Erro ao executar refresh",
+      "auth/service/auth.service/refresh",
     );
   }
 }

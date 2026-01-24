@@ -1,9 +1,15 @@
-import { eq } from "drizzle-orm";
+import { and, eq, lt } from "drizzle-orm";
 import { AppError } from "../../core/errors/AppError";
 import { ExecuteHandler } from "../../core/handlers/executeHandler";
 import { db } from "../../database/Client";
 import { refresh_tokens, users } from "../../database/Schemas";
-import { InsertTokenRefresh, InsertUser, tokenRefresh, User } from "./dtos/auth.dto.types";
+import {
+  InsertTokenRefresh,
+  InsertUser,
+  tokenRefresh,
+  UpdateTokenRefresh,
+  User,
+} from "./dtos/auth.dto.types";
 
 export class AuthRepository {
   constructor(private readonly execute: ExecuteHandler) {}
@@ -22,12 +28,12 @@ export class AuthRepository {
   public createToken(data: InsertTokenRefresh): Promise<tokenRefresh> {
     return this.execute.repository(
       async () => {
-        const result = await db.insert(refresh_tokens).values(data).returning()
-        return result[0]
+        const result = await db.insert(refresh_tokens).values(data).returning();
+        return result[0];
       },
-       "Erro ao executar createToken",
+      "Erro ao executar createToken",
       "auth/auth.repository/createToken",
-    )
+    );
   }
   public getByEmail(email: string): Promise<User> {
     return this.execute.repository(
@@ -66,5 +72,39 @@ export class AuthRepository {
         "auth/repositories/auth.respository/getUserNotExists",
       );
     }
+  }
+
+  public async getTokenRefresh(user_id: string) {
+    return this.execute.repository(
+      async () => {
+
+        const result = await db
+          .select()
+          .from(refresh_tokens)
+          .where(
+            and(
+              eq(refresh_tokens.user_id, user_id),
+              eq(refresh_tokens.revoked, false),
+              lt(refresh_tokens.expires_at, new Date())
+            ),
+          );
+
+        return result;
+      },
+      "Erro ao executar getTokenRefresh",
+      "auth/auth.repository/getTokenRefresh",
+    );
+  }
+
+  public updateRefreshToken(refreshToken_id: string, data: UpdateTokenRefresh): Promise<tokenRefresh> {
+    return this.execute.repository(
+      async () => {
+        const result = await db.update(refresh_tokens).set(data).where(eq(refresh_tokens.id, refreshToken_id)).returning()
+
+        return result[0]
+      },
+      "Erro ao executar updateRefreshToken",
+      "auth/auth.repository/updateRefreshToken",
+    )
   }
 }
