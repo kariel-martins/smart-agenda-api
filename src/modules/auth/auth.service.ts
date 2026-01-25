@@ -4,7 +4,11 @@ import { CryptoService } from "../../share/services/CryptoService";
 import { JwtService } from "../../share/services/JWTService";
 import { Masks } from "../../share/utils/masks";
 import { AuthRepository } from "./auth.repository";
-import { createUsersData, loginData } from "./dtos/auth.dto.schema";
+import {
+  createUsersData,
+  loginData,
+  resetPasswordData,
+} from "./dtos/auth.dto.schema";
 import { tokensWithUser, UserOmitPassword } from "./dtos/auth.dto.types";
 
 export class AuthService {
@@ -79,7 +83,7 @@ export class AuthService {
   public refresh(
     refresh_token: string,
     user_id: string,
-  ): Promise<{ accessToken: string, refreshToken: string }> {
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     return this.execute.service(
       async () => {
         let validToken = null;
@@ -116,6 +120,61 @@ export class AuthService {
       },
       "Erro ao executar refresh",
       "auth/service/auth.service/refresh",
+    );
+  }
+
+  public forgotPassword(email: string): Promise<{ message: string }> {
+    return this.execute.service(
+      async () => {
+        const result = await this.repo.getByEmail(email);
+
+        const token = await this.jwtService.sign(
+          {
+            purpose: "FORGOT_PASSWORD",
+            scope: crypto.randomUUID(),
+            sub: result.id,
+          },
+          15,
+        );
+
+        return { message: "Email enviar com sucesso!" };
+      },
+      "Erro ao executar forgoutPassword",
+      "auth/service/auth.service/forgoutPassword",
+    );
+  }
+
+  public resetPassword(
+    token: string,
+    data: resetPasswordData,
+  ): Promise<{ message: string }> {
+    return this.execute.service(
+      async () => {
+        const { password, comfirmPassword } = data;
+
+        if (password !== comfirmPassword)
+          throw new AppError("Senhas não coincidem!");
+
+        const isValidToken = await this.jwtService.verify(token);
+
+        if (
+          !isValidToken ||
+          isValidToken === "JWT_SECRET_NOT_FOUND" ||
+          isValidToken === "INVALID_TOKEN" ||
+          isValidToken === "ERRO_TOKEN_VERIFY"
+        )
+          throw new AppError("Token invalid!", 404);
+        if (!isValidToken.sub)
+          throw new AppError("Id do usuário não encotrado", 500);
+        const password_hash = await this.crypt.hashText(password);
+        const result = await this.repo.update(isValidToken.sub, {
+          password_hash,
+        });
+
+        return { message: "Senha atualizada com sucesso!" };
+      },
+      "Erro ao executar resetPassword",
+      "auth/service/auth.service/resetPassword",
     );
   }
 }

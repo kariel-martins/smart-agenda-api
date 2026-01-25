@@ -8,6 +8,7 @@ import {
   InsertUser,
   tokenRefresh,
   UpdateTokenRefresh,
+  updateUser,
   User,
 } from "./dtos/auth.dto.types";
 
@@ -105,6 +106,18 @@ export class AuthRepository {
       },
       "Erro ao executar updateRefreshToken",
       "auth/auth.repository/updateRefreshToken",
+    )
+  }
+
+  public update( user_id: string, data: updateUser ): Promise<User> {
+    return this.execute.repository(
+      async () => {
+        const result = await db.update(users).set(data).where(eq(users.id, user_id)).returning()
+
+        return result[0]
+      },
+      "Erro ao executar update",
+      "auth/auth.repository/update",
     )
   }
 }

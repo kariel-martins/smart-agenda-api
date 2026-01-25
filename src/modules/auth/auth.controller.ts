@@ -17,7 +17,7 @@ export const createUser: RequestHandler = async (req, res) => {
     }
     res.status(500).json({
       message: "Erro ao processar createUser",
-      context: "users/users.controller.ts/createUser",
+      context: "auth/auth.controller.ts/createUser",
     });
   }
 };
@@ -51,7 +51,7 @@ export const login: RequestHandler = async (req, res) => {
     }
     res.status(500).json({
       message: "Erro ao processar login",
-      context: "users/users.controller.ts/login",
+      context: "auth/auth.controller.ts/login",
     });
   }
 };
@@ -89,13 +89,16 @@ export const refresh: RequestHandler = async (req, res) => {
     }
     res.status(500).json({
       message: "Erro ao processar refresh",
-      context: "users/users.controller.ts/refresh",
+      context: "auth/auth.controller.ts/refresh",
     });
   }
 };
 
-export const forgoutPassword: RequestHandler = (req, res) => {
+export const forgotPassword: RequestHandler = async (req, res) => {
   try {
+    const result = await service.forgotPassword(req.body);
+
+    return res.status(200).json(result);
   } catch (error) {
     if (error instanceof AppError) {
       return res
@@ -104,12 +107,17 @@ export const forgoutPassword: RequestHandler = (req, res) => {
     }
     res.status(500).json({
       message: "Erro ao processar forgoutPassword",
-      context: "users/users.controller.ts/forgoutPassword",
+      context: "auth/auth.controller.ts/forgoutPassword",
     });
   }
 };
-export const resetPassword: RequestHandler = (req, res) => {
+export const resetPassword: RequestHandler = async (req, res) => {
   try {
+    const { token } = req.params as { token: string };
+    const data = req.body;
+    const result = await service.resetPassword(token, data);
+
+    return res.status(200).json(result)
   } catch (error) {
     if (error instanceof AppError) {
       return res
@@ -118,7 +126,7 @@ export const resetPassword: RequestHandler = (req, res) => {
     }
     res.status(500).json({
       message: "Erro ao processar resetPassword",
-      context: "users/users.controller.ts/resetPassword",
+      context: "auth/auth.controller.ts/resetPassword",
     });
   }
 };
@@ -147,7 +155,7 @@ export const logout: RequestHandler = (req, res) => {
     return res.status(500).json({
       message: "Erro ao processar logout",
       context:
-        "auth/controllers/auth.controller.ts/removeTokenAutenticationUser",
+        "auth/auth.controller.ts/logout",
     });
   }
 };
