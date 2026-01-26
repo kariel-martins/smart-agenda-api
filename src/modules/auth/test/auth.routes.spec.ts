@@ -1,9 +1,9 @@
-import request from "supertest"
-import { app } from "../../../app" // seu express
+import request from "supertest";
+import { app } from "../../../app";
 
-describe("POST /Auth", () => {
+describe("AUTH ROUTES", () => {
 
-  it("deve criar usuário", async () => {
+  it("POST /auth/register", async () => {
 
     const response = await request(app)
       .post("/api/v1/auth/register")
@@ -12,10 +12,23 @@ describe("POST /Auth", () => {
         email: "joao@email.com",
         password: "DevAdmin@26",
         comfirmPassword: "DevAdmin@26"
-      })
+      });
 
-    expect(response.status).toBe(201)
-    expect(response.body.email).toBeDefined()
-  })
+    expect(response.status).toBe(201);
+    expect(response.body.email).toBeDefined();
+  });
 
-})
+  it("POST /auth/login", async () => {
+
+    const response = await request(app)
+      .post("/api/v1/auth/login")
+      .send({
+        email: "joao@email.com",
+        password: "DevAdmin@26"
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.headers["set-cookie"]).toBeDefined();
+  });
+
+});

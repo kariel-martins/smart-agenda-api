@@ -4,4 +4,4 @@ package-lock.json
 dist
 
 .env*
-!.env.exaple
+!.env.example
