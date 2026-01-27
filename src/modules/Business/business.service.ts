@@ -1,6 +1,10 @@
 import { ExecuteHandler } from "../../core/handlers/executeHandler";
 import { BusinessRepository } from "./business.repository";
-import { Business, InsertBusiness, UpdateBusiness } from "./dtos/business.dto.types";
+import {
+  Business,
+  InsertBusiness,
+  UpdateBusiness,
+} from "./dtos/business.dto.types";
 
 export class BusinessService {
   constructor(
@@ -11,9 +15,9 @@ export class BusinessService {
   public create(data: InsertBusiness): Promise<any> {
     return this.execute.service(
       async () => {
-        const result = await this.repo.create(data)
+        const result = await this.repo.create(data);
 
-        return result
+        return result;
       },
       "Erro ao executar create",
       "Business/business.service.ts/create",
@@ -23,9 +27,9 @@ export class BusinessService {
   public getById(business_id: string): Promise<any> {
     return this.execute.service(
       async () => {
-        const result = await this.repo.getById(business_id)
+        const result = await this.repo.getById(business_id);
 
-        return result
+        return result;
       },
       "Erro ao executar getById",
       "Business/business.service.ts/getById",
@@ -35,9 +39,9 @@ export class BusinessService {
   public getAll(): Promise<Business[]> {
     return this.execute.service(
       async () => {
-        const result = await this.repo.getAll()
+        const result = await this.repo.getAll();
 
-        return result
+        return result;
       },
       "Erro ao executar getAll",
       "Business/business.service.ts/getAll",
@@ -47,9 +51,9 @@ export class BusinessService {
   public update(business_id: string, data: UpdateBusiness): Promise<any> {
     return this.execute.service(
       async () => {
-        const result = await this.repo.update(business_id, data)
+        const result = await this.repo.update(business_id, data);
 
-        return result
+        return result;
       },
       "Erro ao executar update",
       "Business/business.service.ts/update",
@@ -59,9 +63,9 @@ export class BusinessService {
   public delete(business_id: string): Promise<any> {
     return this.execute.service(
       async () => {
-        const result = await this.repo.delete(business_id)
+        const result = await this.repo.delete(business_id);
 
-        return result
+        return result;
       },
       "Erro ao executar delete",
       "Business/business.service.ts/delete",
