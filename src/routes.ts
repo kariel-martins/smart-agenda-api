@@ -10,5 +10,6 @@ router.get("/", (_req: Request, res: Response) => {
 
 router.use("/api/v1/auth", authRoute)
 router.use("/api/v1/users", userRoute)
+router.use("/api/v1/business", userRoute)
 
 export { router }
