@@ -1,7 +1,7 @@
 import { AppError } from "../../core/errors/AppError";
 import { ExecuteHandler } from "../../core/handlers/executeHandler";
-import { CryptoService } from "../../share/services/CryptoService";
-import { JwtService } from "../../share/services/JWTService";
+import { ICryptoService } from "../../share/services/interfaces/ICryptoService";
+import { IJWTService } from "../../share/services/interfaces/IJWTService";
 import { Masks } from "../../share/utils/masks";
 import { AuthRepository } from "./auth.repository";
 import {
@@ -12,19 +12,19 @@ import {
 import { tokensWithUser, UserOmitPassword } from "./dtos/auth.dto.types";
 
 export class AuthService {
-  private crypt = new CryptoService();
-  private mask = new Masks();
-  private jwtService = new JwtService();
 
   constructor(
     private readonly execute: ExecuteHandler,
     private readonly repo: AuthRepository,
+      private readonly crypt: ICryptoService,
+  private readonly jwtService: IJWTService,
+  private readonly mask: Masks,
   ) {}
 
-  public RegisterUser(data: createUsersData): Promise<UserOmitPassword> {
+  public registerUser(data: createUsersData): Promise<UserOmitPassword> {
     return this.execute.service(
       async () => {
-        if (data.password !== data.comfirmPassword)
+        if (data.password !== data.confirmPassword)
           throw new AppError("Senhas não coencidem");
 
         const password_hash = await this.crypt.hashText(data.password);
@@ -36,8 +36,8 @@ export class AuthService {
 
         return { email: this.mask.email(email), ...rest };
       },
-      "Erro ao executar RegisterUser",
-      "auth/service/auth.service/RegisterUser",
+      "Erro ao executar registerUser",
+      "auth/service/auth.service/registerUser",
     );
   }
 
@@ -48,12 +48,12 @@ export class AuthService {
           data.email,
         );
 
-        const isValid = this.crypt.verifyText(data.password, password_hash);
+        const isValid = await this.crypt.verifyText(data.password, password_hash);
 
         if (!isValid) throw new AppError("Senha inválida");
 
         const refreshToken = crypto.randomUUID();
-        const refreshTokenHash = String(this.crypt.hashText(refreshToken));
+        const refreshTokenHash = await this.crypt.hashText(refreshToken)
 
         await this.repo.createToken({
           user_id: rest.id,
@@ -61,7 +61,7 @@ export class AuthService {
         });
 
         const accessToken = await this.jwtService.sign(
-          { purpose: "ACCESS_TOKEN", scope: crypto.randomUUID() },
+          { purpose: "ACCESS_TOKEN", scope: crypto.randomUUID(), sub: rest.id },
           15,
         );
 
@@ -101,13 +101,14 @@ export class AuthService {
           }
         }
 
-        if (!validToken) throw new AppError("Refresh token inválido", 500);
+        if (!validToken) throw new AppError("Refresh token inválido", 401);
 
         await this.repo.updateRefreshToken(validToken?.id, {
           revoked: true,
         });
 
-        const newRefreshToken = await this.crypt.hashText(crypto.randomUUID());
+        const tokenRefresh = crypto.randomUUID()
+        const newRefreshToken = await this.crypt.hashText(tokenRefresh);
 
         await this.repo.createToken({ user_id, token_hash: newRefreshToken });
 
@@ -116,7 +117,7 @@ export class AuthService {
           15,
         );
 
-        return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+        return { accessToken: newAccessToken, refreshToken: tokenRefresh };
       },
       "Erro ao executar refresh",
       "auth/service/auth.service/refresh",
@@ -137,10 +138,12 @@ export class AuthService {
           15,
         );
 
+        //incompleto adicionar serviço de email
+        
         return { message: "Email enviar com sucesso!" };
       },
-      "Erro ao executar forgoutPassword",
-      "auth/service/auth.service/forgoutPassword",
+      "Erro ao executar forgotPassword",
+      "auth/service/auth.service/forgotPassword",
     );
   }
 
@@ -157,19 +160,16 @@ export class AuthService {
 
         const isValidToken = await this.jwtService.verify(token);
 
-        if (
-          !isValidToken ||
-          isValidToken === "JWT_SECRET_NOT_FOUND" ||
-          isValidToken === "INVALID_TOKEN" ||
-          isValidToken === "ERRO_TOKEN_VERIFY"
-        )
+        if (!isValidToken)
           throw new AppError("Token invalid!", 404);
         if (!isValidToken.sub)
           throw new AppError("Id do usuário não encotrado", 500);
         const password_hash = await this.crypt.hashText(password);
-        const result = await this.repo.update(isValidToken.sub, {
+        await this.repo.update(isValidToken.sub, {
           password_hash,
         });
+
+        //incompleto adicionar serviço de email
 
         return { message: "Senha atualizada com sucesso!" };
       },

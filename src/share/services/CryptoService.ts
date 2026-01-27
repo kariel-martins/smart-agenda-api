@@ -1,8 +1,9 @@
 import { genSalt, hash, compare } from "bcryptjs";
+import { ICryptoService } from "./interfaces/ICryptoService";
 
 const SALT_RANDOMS = 8
 
-export class CryptoService {
+export class CryptoService implements ICryptoService {
     public async hashText(password: string) {
         const saltGenerated = await genSalt(SALT_RANDOMS);
         return await hash(password, saltGenerated)

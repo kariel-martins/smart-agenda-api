@@ -21,7 +21,7 @@ describe("AuthService", () => {
       password_hash: "123",
     });
 
-    const result = await service.RegisterUser({
+    const result = await service.registerUser({
       name: "João",
       email: "teste@email.com",
       password: "123",

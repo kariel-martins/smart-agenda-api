@@ -6,7 +6,7 @@ const service = makeAuthService();
 
 export const createUser: RequestHandler = async (req, res) => {
   try {
-    const result = await service.RegisterUser(req.body);
+    const result = await service.registerUser(req.body);
 
     return res.status(201).json(result);
   } catch (error) {

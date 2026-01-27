@@ -1,46 +1,38 @@
 import jwt from "jsonwebtoken";
-import { env } from "../../config/env";
+import { AppError } from "../../core/errors/AppError";
+import { IJWTService } from "./interfaces/IJWTService";
+import { IJwtData } from "./types/JWTService";
 
-interface IJwtData {
-  scope: string;
-  purpose: string;
-  sub?: string;
-}
+export class JwtService implements IJWTService {
+  
+  constructor(private readonly jwtKey: string) { }
 
-const { jwtKey } = env();
-
-export class JwtService {
-  public async sign(
-    data: IJwtData,
-    expireInMinutes = 15,
-  ): Promise<
-    string | "INVALID_TOKEN" | "JWT_SECRET_NOT_FOUND" | "ERRO_TOKEN_SIGN"
-  > {
-    if (!jwtKey) return "JWT_SECRET_NOT_FOUND";
+  async sign(data: IJwtData, expireInMinutes = 15): Promise<string> {
     try {
-      const result = jwt.sign(data, jwtKey, {
+      return jwt.sign(data, this.jwtKey, {
         expiresIn: `${expireInMinutes}m`,
       });
-      return result;
     } catch {
-      return "ERRO_TOKEN_SIGN";
+      throw new AppError("Erro ao gerar token", 500, true, "JwtService.sign");
     }
   }
 
-  public async verify(
-    token: string,
-  ): Promise<
-    IJwtData | "JWT_SECRET_NOT_FOUND" | "INVALID_TOKEN" | "ERRO_TOKEN_VERIFY"
-  > {
-    if (!jwtKey) return "JWT_SECRET_NOT_FOUND";
+  async verify(token: string): Promise<IJwtData> {
     try {
-      const decoded = jwt.verify(token, jwtKey);
+      const decoded = jwt.verify(token, this.jwtKey);
+
       if (typeof decoded === "string") {
-        return "INVALID_TOKEN";
+        throw new AppError("Invalid token", 401);
       }
+
       return decoded as IJwtData;
-    } catch {
-      return "ERRO_TOKEN_VERIFY";
+    } catch (error) {
+      throw new AppError(
+        "Token inválido ou expirado",
+        401,
+        true,
+        "JwtService.verify",
+      );
     }
   }
 }

@@ -6,7 +6,7 @@ const createUsersSchema = z.object({
   name: schemaVars.text,
   email: schemaVars.email,
   password: schemaVars.password,
-  comfirmPassword: schemaVars.password,
+  confirmPassword: schemaVars.password,
 });
 
 export const createUsersValidation = validation((getSchemas) => ({
