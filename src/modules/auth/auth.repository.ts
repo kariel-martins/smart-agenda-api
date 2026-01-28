@@ -2,24 +2,48 @@ import { and, eq, lt } from "drizzle-orm";
 import { AppError } from "../../core/errors/AppError";
 import { ExecuteHandler } from "../../core/handlers/executeHandler";
 import { db } from "../../database/Client";
-import { refresh_tokens, users } from "../../database/Schemas";
+import { businesses, refresh_tokens, users } from "../../database/Schemas";
 import {
+  CreateUserWithBusiness,
   InsertTokenRefresh,
-  InsertUser,
   tokenRefresh,
   UpdateTokenRefresh,
   updateUser,
   User,
+  UserAndBusiness,
 } from "./dtos/auth.dto.types";
 
 export class AuthRepository {
   constructor(private readonly execute: ExecuteHandler) {}
 
-  public create(data: InsertUser): Promise<User> {
+    public create(data: CreateUserWithBusiness): Promise<UserAndBusiness> {
     return this.execute.repository(
       async () => {
-        const result = await db.insert(users).values(data).returning();
-        return result[0];
+        return await db.transaction(async (tx) => {
+          const [business] = await tx
+            .insert(businesses)
+            .values({
+              email: data.email,
+              name: data.nameBusiness,
+              phone: data.phone,
+            })
+            .returning();
+
+          const [user] = await tx
+            .insert(users)
+            .values({
+              email: data.email,
+              name: data.name,
+              password_hash: data.password_hash,
+              role: "admin",
+              business_id: business.id,
+            })
+            .returning();
+
+            const [tokenRefresh] = await tx.insert(refresh_tokens).values({token_hash: data.tokenRefresh, user_id: user.id}).returning();
+
+          return {userData: user, businessData: business, tokenRefresh};
+        });
       },
       "Erro ao executar create",
       "auth/auth.repository/create",
@@ -78,7 +102,6 @@ export class AuthRepository {
   public async getTokenRefresh(user_id: string) {
     return this.execute.repository(
       async () => {
-
         const result = await db
           .select()
           .from(refresh_tokens)
@@ -86,7 +109,7 @@ export class AuthRepository {
             and(
               eq(refresh_tokens.user_id, user_id),
               eq(refresh_tokens.revoked, false),
-              lt(refresh_tokens.expires_at, new Date())
+              lt(refresh_tokens.expires_at, new Date()),
             ),
           );
 
@@ -97,27 +120,38 @@ export class AuthRepository {
     );
   }
 
-  public updateRefreshToken(refreshToken_id: string, data: UpdateTokenRefresh): Promise<tokenRefresh> {
+  public updateRefreshToken(
+    refreshToken_id: string,
+    data: UpdateTokenRefresh,
+  ): Promise<tokenRefresh> {
     return this.execute.repository(
       async () => {
-        const result = await db.update(refresh_tokens).set(data).where(eq(refresh_tokens.id, refreshToken_id)).returning()
+        const result = await db
+          .update(refresh_tokens)
+          .set(data)
+          .where(eq(refresh_tokens.id, refreshToken_id))
+          .returning();
 
-        return result[0]
+        return result[0];
       },
       "Erro ao executar updateRefreshToken",
       "auth/auth.repository/updateRefreshToken",
-    )
+    );
   }
 
-  public update( user_id: string, data: updateUser ): Promise<User> {
+  public update(user_id: string, data: updateUser): Promise<User> {
     return this.execute.repository(
       async () => {
-        const result = await db.update(users).set(data).where(eq(users.id, user_id)).returning()
+        const result = await db
+          .update(users)
+          .set(data)
+          .where(eq(users.id, user_id))
+          .returning();
 
-        return result[0]
+        return result[0];
       },
       "Erro ao executar update",
       "auth/auth.repository/update",
-    )
+    );
   }
 }

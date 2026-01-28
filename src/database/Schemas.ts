@@ -10,49 +10,60 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 
+export const businesses = pgTable("businesses", {
+  id: uuid().primaryKey().notNull().defaultRandom(),
+  name: text().notNull(),
+  slug: text(),
+  phone: text().notNull(),
+  email: text().unique().notNull(),
+  active: boolean().notNull().default(false),
+  timezone: text().notNull().default("America/Sao_Paulo"),
+  created_at: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .default(sql`NOW()`),
+});
+
+export const userRoleEnum = pgEnum("user_role", ["admin", "manager", "staff"]);
+
 export const users = pgTable("users", {
   id: uuid().primaryKey().notNull().defaultRandom(),
   name: text().notNull(),
   email: text().unique().notNull(),
   password_hash: text().notNull(),
-  role: text().notNull().default("staff"),
+  role: userRoleEnum("user_role"),
+  business_id: uuid("business_id")
+    .references(() => businesses.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
   created_at: timestamp("created_at", { withTimezone: true })
     .notNull()
     .default(sql`NOW()`),
   updated_at: timestamp("updated_at", { withTimezone: true }),
 });
 
-export const businesses = pgTable("businesses", {
-  id: uuid().primaryKey().notNull().defaultRandom(),
-  name: text().notNull(),
-  slug: text(),
-  phone: integer().notNull(),
-  email: text().unique().notNull(),
-  active: boolean().notNull().default(false),
-  timezone: timestamp("timezome", { withTimezone: true }),
-  created_at: timestamp("created_at", { withTimezone: true })
-    .notNull()
-    .default(sql`NOW()`),
-});
-
 export const refresh_tokens = pgTable("refresh_tokens", {
   id: uuid().primaryKey().notNull().defaultRandom(),
-  user_id: uuid("user_id").references(() => users.id, {
-    onDelete: "cascade",
-  }).notNull(),
+  user_id: uuid("user_id")
+    .references(() => users.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
   token_hash: text().notNull(),
   created_at: timestamp("created_at", { withTimezone: true })
     .notNull()
     .default(sql`NOW()`),
   expires_at: timestamp("expires_at", { withTimezone: true }),
-  revoked: boolean().notNull().default(false)
-})
+  revoked: boolean().notNull().default(false),
+});
 
 export const professionals = pgTable("professionals", {
   id: serial("id").primaryKey(),
-  businesses_id: uuid("businesses_id").references(() => businesses.id, {
-    onDelete: "cascade",
-  }),
+  businesses_id: uuid("businesses_id")
+    .references(() => businesses.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
   name: text().notNull(),
   specialty: text().notNull(),
   is_active: boolean().notNull().default(false),
@@ -63,9 +74,11 @@ export const professionals = pgTable("professionals", {
 
 export const services = pgTable("services", {
   id: serial("id").primaryKey(),
-  businesses_id: uuid("businesses_id").references(() => businesses.id, {
-    onDelete: "cascade",
-  }),
+  businesses_id: uuid("businesses_id")
+    .references(() => businesses.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
   name: text().notNull(),
   duration_minutes: integer().notNull(),
   price: integer().notNull(),
@@ -76,9 +89,11 @@ export const services = pgTable("services", {
 
 export const clients = pgTable("clients", {
   id: uuid().primaryKey().notNull().defaultRandom(),
-  businesses_id: uuid("businesses_id").references(() => businesses.id, {
-    onDelete: "cascade",
-  }),
+  businesses_id: uuid("businesses_id")
+    .references(() => businesses.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
   name: text().notNull(),
   phone: integer().notNull(),
   email: text().unique().notNull(),
@@ -91,9 +106,11 @@ export const clients = pgTable("clients", {
 
 export const availabilities = pgTable("availabilities", {
   id: serial("id").primaryKey(),
-  professional_id: serial("professional_id").references(() => professionals.id, {
-    onDelete: "cascade",
-  }),
+  professional_id: serial("professional_id")
+    .references(() => professionals.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
   day_of_week: text().notNull(),
   start_time: timestamp("start_time", { withTimezone: true }),
   end_time: timestamp("end_time", { withTimezone: true }),
@@ -103,30 +120,38 @@ export const statusOfAppointment = pgEnum("status", [
   "scheduled",
   "confirmed",
   "completed",
-  "conceled",
+  "canceled",
   "no_show",
 ]);
 export const appointment = pgTable("appointment", {
   id: serial("id").primaryKey(),
-  businesses_id: uuid("businesses_id").references(() => businesses.id, {
-    onDelete: "cascade",
-  }),
-  professional_id: serial("professional_id").references(() => professionals.id, {
-    onDelete: "cascade",
-  }),
-  client_id: uuid("client_id").references(() => clients.id, {
-    onDelete: "cascade",
-  }),
-  service_id: serial("service_id").references(() => services.id, {
-    onDelete: "cascade",
-  }),
+  businesses_id: uuid("businesses_id")
+    .references(() => businesses.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
+  professional_id: serial("professional_id")
+    .references(() => professionals.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
+  client_id: uuid("client_id")
+    .references(() => clients.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
+  service_id: serial("service_id")
+    .references(() => services.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
   date: timestamp("date", { withTimezone: true })
     .notNull()
     .default(sql`NOW()`),
   start_time: timestamp("start_time", { withTimezone: true }),
   end_time: timestamp("end_time", { withTimezone: true }),
   status: statusOfAppointment("status"),
-  cancel_reason: boolean().notNull().default(false),
+  cancel_reason: text(),
   confirm_at: timestamp("confirm_at", { withTimezone: true }),
   created_at: timestamp("created_at", { withTimezone: true })
     .notNull()
