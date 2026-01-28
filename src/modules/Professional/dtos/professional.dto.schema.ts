@@ -5,6 +5,7 @@ import { validation } from "../../../share/middlewares/Validation"
 const professionalSchema = z.object({
     name: schemaVars.text,
     specialty: schemaVars.text,
+    role: schemaVars.text
 })
 
 const professionalByIdSchema = z.object({
@@ -14,6 +15,8 @@ const professionalByIdSchema = z.object({
 export const professionalCreateValidate = validation((getSchemas) => ({
     body: getSchemas(professionalSchema)
 })) 
+
+export type professionalData = z.infer<typeof professionalSchema>
 
 export const professionalValidate = validation((getSchemas) => ({
     params: getSchemas(professionalByIdSchema)

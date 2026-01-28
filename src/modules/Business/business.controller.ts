@@ -4,7 +4,7 @@ import { makeBusinessService } from "./business.factory";
 
 const service = makeBusinessService();
 
-export const getById: RequestHandler = async (req, res) => {
+export const get: RequestHandler = async (req, res) => {
   try {
     const { business_id } = req.params as { business_id: string };
     const result = await service.getById(business_id);

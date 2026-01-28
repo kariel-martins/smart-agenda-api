@@ -4,11 +4,12 @@ import { validation } from "../../../share/middlewares/Validation"
 
 const serviceSchema = z.object({
     name: schemaVars.text,
-    specialty: schemaVars.text,
+    durationMinutes: schemaVars.number,
+    price: schemaVars.number
 })
 
 const serviceByIdSchema = z.object({
-    professional_id: schemaVars.text
+    service_id: schemaVars.text
 })
 
 export const serviceCreateValidate = validation((getSchemas) => ({

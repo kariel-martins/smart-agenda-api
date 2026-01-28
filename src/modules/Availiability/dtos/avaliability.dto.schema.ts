@@ -3,8 +3,9 @@ import { schemaVars } from "../../../share/utils/schemasVars"
 import { validation } from "../../../share/middlewares/Validation"
 
 const availiablilitySchema = z.object({
-    name: schemaVars.text,
-    specialty: schemaVars.text,
+    dayOfWeek: schemaVars.text,
+    startTime: schemaVars.text,
+    endTime: schemaVars.text,
 })
 
 const availiablilityByIdSchema = z.object({

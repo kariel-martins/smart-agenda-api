@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { create, getById, remove, update } from "./availiablility.controller";
-import { availiablilityCreateValidate, availiablilityDeleteValidate, availiablilityUpdateValidate } from "./dtos/avaliability.dto.schema";
+import { create, getById, remove, update } from "./appointment.controller";
+import { availiablilityCreateValidate, availiablilityDeleteValidate, availiablilityUpdateValidate } from "../Availiability/dtos/avaliability.dto.schema";
 
 const availabilityRoute = Router()
 

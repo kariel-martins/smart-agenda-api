@@ -1,27 +1,22 @@
-import { AppError } from "../../core/errors/AppError";
 import { ExecuteHandler } from "../../core/handlers/executeHandler";
-import { professionalData } from "./dtos/professional.dto.schema";
-import { InsertProfessional, Professional, UpdateProfessional } from "./dtos/professional.dto.type";
-import { ProfessionalRepository } from "./professional.repository";
+import { NoShowRoleRepository } from "./noShowRole.repository";
+import { NoShowRole, InsertNoShowRole, UpdateNoShowRole } from "./dtos/noShowRole.dto.type";
 
-export class ProfessionalService {
+export class NoShowRoleService {
   constructor(
     private readonly execute: ExecuteHandler,
-    private readonly repo: ProfessionalRepository,
+    private readonly repo: NoShowRoleRepository,
   ) {}
 
-  public create(data: professionalData): Promise<any> {
+  public create(data: InsertNoShowRole): Promise<any> {
     return this.execute.service(
       async () => {
-        const allowedRoles = ["ADMIN", "MANAGER"]
-        if (!allowedRoles.includes(data.role)) throw new AppError("Usuário não autorizado para ação!")
-
         const result = await this.repo.create(data);
 
         return result;
       },
       "Erro ao executar create",
-      "Professional/professional.service.ts/create",
+      "NoShowRole/noShowRole.service.ts/create",
     );
   }
 
@@ -33,11 +28,11 @@ export class ProfessionalService {
         return result;
       },
       "Erro ao executar getById",
-      "Professional/professional.service.ts/getById",
+      "NoShowRole/noShowRole.service.ts/getById",
     );
   }
 
-  public getAll(): Promise<Professional[]> {
+  public getAll(): Promise<NoShowRole[]> {
     return this.execute.service(
       async () => {
         const result = await this.repo.getAll();
@@ -45,11 +40,11 @@ export class ProfessionalService {
         return result;
       },
       "Erro ao executar getAll",
-      "Professional/professional.service.ts/getAll",
+      "NoShowRole/noShowRole.service.ts/getAll",
     );
   }
 
-  public update(professional_id: number, data: UpdateProfessional): Promise<any> {
+  public update(professional_id: number, data: UpdateNoShowRole): Promise<any> {
     return this.execute.service(
       async () => {
         const result = await this.repo.update(professional_id, data);
@@ -57,7 +52,7 @@ export class ProfessionalService {
         return result;
       },
       "Erro ao executar update",
-      "Professional/professional.service.ts/update",
+      "NoShowRole/noShowRole.service.ts/update",
     );
   }
 
@@ -69,7 +64,7 @@ export class ProfessionalService {
         return result;
       },
       "Erro ao executar delete",
-      "Professional/professional.service.ts/delete",
+      "NoShowRole/noShowRole.service.ts/delete",
     );
   }
 }

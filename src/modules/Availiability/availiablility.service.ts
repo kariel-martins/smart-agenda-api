@@ -1,6 +1,6 @@
 import { ExecuteHandler } from "../../core/handlers/executeHandler";
 import { AvailiablilityRepository } from "./availiablility.repository";
-import { Availiablility, InsertAvailiablility, UpdateAvailiablility } from "./dtos/service.dto.type";
+import { Availiablility, InsertAvailiablility, UpdateAvailiablility } from "./dtos/avaliability.dto.type";
 
 export class AvailiablilityService {
   constructor(

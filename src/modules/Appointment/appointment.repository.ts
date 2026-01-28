@@ -1,39 +1,39 @@
 import { eq } from "drizzle-orm";
 import { ExecuteHandler } from "../../core/handlers/executeHandler";
 import { db } from "../../database/Client";
-import { Availiablility, InsertAvailiablility, UpdateAvailiablility } from "./dtos/avaliability.dto.type";
+import { Appointment, InsertAppointment, UpdateAppointment } from "./dtos/appointment.dto.type";
 import { availabilities } from "../../database/Schemas";
 
-export class AvailiablilityRepository {
+export class AppointmentRepository {
   constructor(private readonly execute: ExecuteHandler) {}
 
-  public create(data: InsertAvailiablility): Promise<Availiablility> {
+  public create(data: InsertAppointment): Promise<Appointment> {
     return this.execute.repository(
       async () => {
         const result = await db.insert(availabilities).values(data).returning();
         return result[0];
       },
       "Erro ao executar create",
-      "Availiablility/availiablility.repository.ts/create",
+      "Appointment/appointment.repository.ts/create",
     );
   }
 
-  public getById(availiablility_id: number): Promise<Availiablility> {
+  public getById(Appointment_id: number): Promise<Appointment> {
     return this.execute.repository(
       async () => {
         const result = await db
           .select()
           .from(availabilities)
-          .where(eq(availabilities.id, availiablility_id));
+          .where(eq(availabilities.id, Appointment_id));
 
         return result[0];
       },
       "Erro ao executar getById",
-      "Availiablility/availiablility.repository.ts/create",
+      "Appointment/appointment.repository.ts/create",
     );
   }
 
-  public getAll(): Promise<Availiablility[]> {
+  public getAll(): Promise<Appointment[]> {
     return this.execute.repository(
       async () => {
         const result = await db.select().from(availabilities);
@@ -41,38 +41,38 @@ export class AvailiablilityRepository {
         return result;
       },
       "Erro ao executar getAll",
-      "Availiablility/availiablility.repository.ts/create",
+      "Appointment/appointment.repository.ts/create",
     );
   }
 
-  public update(availiablility_id: number, data: UpdateAvailiablility): Promise<Availiablility> {
+  public update(Appointment_id: number, data: UpdateAppointment): Promise<Appointment> {
     return this.execute.repository(
       async () => {
         const result = await db
           .update(availabilities)
           .set(data)
-          .where(eq(availabilities.id, availiablility_id))
+          .where(eq(availabilities.id, Appointment_id))
           .returning();
 
         return result[0];
       },
       "Erro ao executar update",
-      "Availiablility/availiablility.repository.ts/create",
+      "Appointment/appointment.repository.ts/create",
     );
   }
 
-  public delete(availiablility_id: number) {
+  public delete(Appointment_id: number) {
     return this.execute.repository(
       async () => {
         const result = await db
           .delete(availabilities)
-          .where(eq(availabilities.id, availiablility_id))
+          .where(eq(availabilities.id, Appointment_id))
           .returning();
 
         return result[0];
       },
       "Erro ao executar delete",
-      "Availiablility/availiablility.repository.ts/create",
+      "Appointment/appointment.repository.ts/create",
     );
   }
 }
