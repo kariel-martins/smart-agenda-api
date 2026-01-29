@@ -3,57 +3,89 @@ import { ExecuteHandler } from "../../core/handlers/executeHandler";
 import { ICryptoService } from "../../share/services/interfaces/ICryptoService";
 import { IJWTService } from "../../share/services/interfaces/IJWTService";
 import { Masks } from "../../share/utils/masks";
+import { BusinessRepository } from "../Business/business.repository";
 import { AuthRepository } from "./auth.repository";
 import {
   createUsersData,
   loginData,
   resetPasswordData,
 } from "./dtos/auth.dto.schema";
-import { tokensWithUser, UserOmitPassword } from "./dtos/auth.dto.types";
+import { tokensWithUserAndBusiness } from "./dtos/auth.dto.types";
 
 export class AuthService {
-
   constructor(
     private readonly execute: ExecuteHandler,
     private readonly repo: AuthRepository,
-      private readonly crypt: ICryptoService,
-  private readonly jwtService: IJWTService,
-  private readonly mask: Masks,
+    private readonly businessRepo: BusinessRepository,
+    private readonly crypt: ICryptoService,
+    private readonly jwtService: IJWTService,
+    private readonly mask: Masks,
   ) {}
 
-  public registerUser(data: createUsersData): Promise<UserOmitPassword> {
+  public registerUser(
+    data: createUsersData,
+  ): Promise<{
+    role: string | null;
+    businessId: string;
+    refreshToken: string;
+    accessToken: string;
+  }> {
     return this.execute.service(
       async () => {
+        await this.repo.getUserNotExists(data.email);
+
         if (data.password !== data.confirmPassword)
-          throw new AppError("Senhas não coencidem");
+          throw new AppError("Senhas não coincidem");
 
         const password_hash = await this.crypt.hashText(data.password);
-        const {
-          password_hash: password,
-          email,
-          ...rest
-        } = await this.repo.create({ password_hash, ...data });
+        const refreshToken = crypto.randomUUID();
+        const refreshTokenHash = await this.crypt.hashText(refreshToken);
 
-        return { email: this.mask.email(email), ...rest };
+        const { userData, businessData } = await this.repo.create({
+          password_hash,
+          tokenRefresh: refreshTokenHash,
+          ...data,
+        });
+
+        const accessToken = await this.jwtService.sign(
+          {
+            purpose: "ACCESS_TOKEN",
+            scope: crypto.randomUUID(),
+            sub: userData.id,
+          },
+          15,
+        );
+
+        return {
+          role: userData.role,
+          businessId: businessData.id,
+          refreshToken,
+          accessToken,
+        };
       },
       "Erro ao executar registerUser",
       "auth/service/auth.service/registerUser",
     );
   }
 
-  public login(data: loginData): Promise<tokensWithUser> {
+  public login(data: loginData): Promise<tokensWithUserAndBusiness> {
     return this.execute.service(
       async () => {
         const { password_hash, email, ...rest } = await this.repo.getByEmail(
           data.email,
         );
 
-        const isValid = await this.crypt.verifyText(data.password, password_hash);
+        const hasBusiness = await this.businessRepo.getById(rest.business_id);
+
+        const isValid = await this.crypt.verifyText(
+          data.password,
+          password_hash,
+        );
 
         if (!isValid) throw new AppError("Senha inválida");
 
         const refreshToken = crypto.randomUUID();
-        const refreshTokenHash = await this.crypt.hashText(refreshToken)
+        const refreshTokenHash = await this.crypt.hashText(refreshToken);
 
         await this.repo.createToken({
           user_id: rest.id,
@@ -68,11 +100,12 @@ export class AuthService {
         const result = {
           refresh_token: refreshToken,
           token: accessToken,
-          users: {
+          usersData: {
             email: this.mask.email(email),
             ...rest,
           },
-        } as tokensWithUser;
+          businessData: hasBusiness,
+        } as tokensWithUserAndBusiness;
         return result;
       },
       "Erro ao executar login",
@@ -95,7 +128,7 @@ export class AuthService {
             token.token_hash,
           );
 
-          if (match) {
+          if (match && !token.revoked) {
             validToken = token;
             break;
           }
@@ -107,13 +140,13 @@ export class AuthService {
           revoked: true,
         });
 
-        const tokenRefresh = crypto.randomUUID()
+        const tokenRefresh = crypto.randomUUID();
         const newRefreshToken = await this.crypt.hashText(tokenRefresh);
 
         await this.repo.createToken({ user_id, token_hash: newRefreshToken });
 
         const newAccessToken = await this.jwtService.sign(
-          { purpose: "ACCESS_TOKEN", scope: crypto.randomUUID() },
+          { purpose: "ACCESS_TOKEN", scope: crypto.randomUUID(), sub: user_id },
           15,
         );
 
@@ -139,7 +172,7 @@ export class AuthService {
         );
 
         //incompleto adicionar serviço de email
-        
+
         return { message: "Email enviar com sucesso!" };
       },
       "Erro ao executar forgotPassword",
@@ -153,15 +186,14 @@ export class AuthService {
   ): Promise<{ message: string }> {
     return this.execute.service(
       async () => {
-        const { password, comfirmPassword } = data;
+        const { password, confirmPassword } = data;
 
-        if (password !== comfirmPassword)
+        if (password !== confirmPassword)
           throw new AppError("Senhas não coincidem!");
 
         const isValidToken = await this.jwtService.verify(token);
 
-        if (!isValidToken)
-          throw new AppError("Token invalid!", 404);
+        if (!isValidToken) throw new AppError("Token invalid!", 404);
         if (!isValidToken.sub)
           throw new AppError("Id do usuário não encotrado", 500);
         const password_hash = await this.crypt.hashText(password);

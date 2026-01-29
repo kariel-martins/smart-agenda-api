@@ -4,7 +4,9 @@ import { schemaVars } from "../../../share/utils/schemasVars";
 
 const createUsersSchema = z.object({
   name: schemaVars.text,
+  nameBusiness: schemaVars.text,
   email: schemaVars.email,
+  phone: schemaVars.text,
   password: schemaVars.password,
   confirmPassword: schemaVars.password,
 });
@@ -46,7 +48,7 @@ export type forgotPasswordData = z.infer<typeof forgotPasswordSchema>;
 
 const resetPasswordSchema = z.object({
   password: schemaVars.password,
-  comfirmPassword: schemaVars.password,
+  confirmPassword: schemaVars.password,
 });
 const resetPasswordUserIdSchema = z.object({
   user_id: schemaVars.text,
