@@ -1,6 +1,6 @@
 import { InferInsertModel, InferSelectModel } from "drizzle-orm";
-import { availabilities } from "../../../database/Schemas";
+import { appointment } from "../../../database/Schemas";
 
-export type Appointment = InferSelectModel<typeof availabilities>
-export type InsertAppointment = InferInsertModel<typeof availabilities>
+export type Appointment = InferSelectModel<typeof appointment>
+export type InsertAppointment = InferInsertModel<typeof appointment>
 export type UpdateAppointment = Partial<InsertAppointment> 

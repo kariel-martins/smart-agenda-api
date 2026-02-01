@@ -30,7 +30,7 @@ export const users = pgTable("users", {
   name: text().notNull(),
   email: text().unique().notNull(),
   password_hash: text().notNull(),
-  role: userRoleEnum("user_role"),
+  user_role: userRoleEnum("user_role"),
   business_id: uuid("business_id")
     .references(() => businesses.id, {
       onDelete: "cascade",
@@ -80,8 +80,8 @@ export const services = pgTable("services", {
     })
     .notNull(),
   name: text().notNull(),
-  duration_minutes: integer().notNull(),
-  price: integer().notNull(),
+  duration_minutes: text().notNull(),
+  price: text().notNull(),
   created_at: timestamp("created_at", { withTimezone: true })
     .notNull()
     .default(sql`NOW()`),
@@ -95,7 +95,7 @@ export const clients = pgTable("clients", {
     })
     .notNull(),
   name: text().notNull(),
-  phone: integer().notNull(),
+  phone: text().notNull(),
   email: text().unique().notNull(),
   no_show_count: integer(),
   total_appointments: integer(),
@@ -112,8 +112,8 @@ export const availabilities = pgTable("availabilities", {
     })
     .notNull(),
   day_of_week: text().notNull(),
-  start_time: timestamp("start_time", { withTimezone: true }),
-  end_time: timestamp("end_time", { withTimezone: true }),
+  start_time: text().notNull(),
+  end_time: text().notNull(),
 });
 
 export const statusOfAppointment = pgEnum("status", [
@@ -145,11 +145,9 @@ export const appointment = pgTable("appointment", {
       onDelete: "cascade",
     })
     .notNull(),
-  date: timestamp("date", { withTimezone: true })
-    .notNull()
-    .default(sql`NOW()`),
-  start_time: timestamp("start_time", { withTimezone: true }),
-  end_time: timestamp("end_time", { withTimezone: true }),
+  date: text().notNull(),
+  start_time: text().notNull(),
+  end_time: text().notNull(),
   status: statusOfAppointment("status"),
   cancel_reason: text(),
   confirm_at: timestamp("confirm_at", { withTimezone: true }),

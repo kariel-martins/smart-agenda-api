@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { ExecuteHandler } from "../../core/handlers/executeHandler";
 import { db } from "../../database/Client";
 import { Appointment, InsertAppointment, UpdateAppointment } from "./dtos/appointment.dto.type";
-import { availabilities } from "../../database/Schemas";
+import { appointment } from "../../database/Schemas";
 
 export class AppointmentRepository {
   constructor(private readonly execute: ExecuteHandler) {}
@@ -10,7 +10,7 @@ export class AppointmentRepository {
   public create(data: InsertAppointment): Promise<Appointment> {
     return this.execute.repository(
       async () => {
-        const result = await db.insert(availabilities).values(data).returning();
+        const result = await db.insert(appointment).values(data).returning();
         return result[0];
       },
       "Erro ao executar create",
@@ -18,15 +18,15 @@ export class AppointmentRepository {
     );
   }
 
-  public getById(Appointment_id: number): Promise<Appointment> {
+  public getByDate(date: string): Promise<Appointment[]> {
     return this.execute.repository(
       async () => {
         const result = await db
           .select()
-          .from(availabilities)
-          .where(eq(availabilities.id, Appointment_id));
+          .from(appointment)
+          .where(eq(appointment.date, date));
 
-        return result[0];
+        return result;
       },
       "Erro ao executar getById",
       "Appointment/appointment.repository.ts/create",
@@ -36,7 +36,7 @@ export class AppointmentRepository {
   public getAll(): Promise<Appointment[]> {
     return this.execute.repository(
       async () => {
-        const result = await db.select().from(availabilities);
+        const result = await db.select().from(appointment);
 
         return result;
       },
@@ -49,9 +49,9 @@ export class AppointmentRepository {
     return this.execute.repository(
       async () => {
         const result = await db
-          .update(availabilities)
+          .update(appointment)
           .set(data)
-          .where(eq(availabilities.id, Appointment_id))
+          .where(eq(appointment.id, Appointment_id))
           .returning();
 
         return result[0];
@@ -65,8 +65,8 @@ export class AppointmentRepository {
     return this.execute.repository(
       async () => {
         const result = await db
-          .delete(availabilities)
-          .where(eq(availabilities.id, Appointment_id))
+          .delete(appointment)
+          .where(eq(appointment.id, Appointment_id))
           .returning();
 
         return result[0];

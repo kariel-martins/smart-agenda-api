@@ -1,3 +1,4 @@
+import { AppError } from "../../core/errors/AppError";
 import { ExecuteHandler } from "../../core/handlers/executeHandler";
 import { InsertService, Service, UpdateService } from "./dtos/service.dto.type";
 import { ServiceRepository } from "./service.repository";
@@ -8,10 +9,15 @@ export class ServiceService {
     private readonly repo: ServiceRepository,
   ) {}
 
-  public create(data: InsertService): Promise<any> {
+  public create(businessId: string, data: InsertService): Promise<any> {
     return this.execute.service(
       async () => {
-        const result = await this.repo.create(data);
+        if (!businessId) throw new AppError("businessId inválido ou ausente!");
+
+        const result = await this.repo.create({
+          ...data,
+          businesses_id: businessId,
+        });
 
         return result;
       },
@@ -20,10 +26,13 @@ export class ServiceService {
     );
   }
 
-  public getById(service_id: number): Promise<any> {
+  public getById(businessId: string): Promise<Service[]> {
     return this.execute.service(
       async () => {
-        const result = await this.repo.getById(service_id);
+
+        if (!businessId) throw new AppError("businessId inválido ou ausente!");
+
+        const result = await this.repo.getById(businessId);
 
         return result;
       },
@@ -44,7 +53,7 @@ export class ServiceService {
     );
   }
 
-  public update(service_id: number, data: UpdateService): Promise<any> {
+  public update(service_id: number, data: UpdateService): Promise<Service> {
     return this.execute.service(
       async () => {
         const result = await this.repo.update(service_id, data);
@@ -56,12 +65,12 @@ export class ServiceService {
     );
   }
 
-  public delete(service_id: number): Promise<any> {
+  public delete(service_id: number): Promise<{message: string}> {
     return this.execute.service(
       async () => {
-        const result = await this.repo.delete(service_id);
+        await this.repo.delete(service_id);
 
-        return result;
+        return { message: "Serviço deletado!"};
       },
       "Erro ao executar delete",
       "Service/service.service.ts/delete",

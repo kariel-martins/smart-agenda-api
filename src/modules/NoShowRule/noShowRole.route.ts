@@ -1,12 +1,13 @@
 import { Router } from "express";
 import { create, getById, remove, update } from "./noShowRole.controller";
-import { availiablilityCreateValidate, availiablilityDeleteValidate, availiablilityUpdateValidate } from "../Availiability/dtos/avaliability.dto.schema";
+import { noShowRoleCreateValidate, noShowRoleDeleteValidate, noShowRoleUpdateValidate } from "./dtos/noShowRole.dto.schema";
 
-const availabilityRoute = Router()
 
-availabilityRoute.get("/professionals", getById)
-availabilityRoute.post("/professionals", availiablilityCreateValidate, create)
-availabilityRoute.put("/professionals/:professionals_id", availiablilityUpdateValidate, update)
-availabilityRoute.delete("/professionals/:professionals_id", availiablilityDeleteValidate, remove)
+const noShowRuleRoute = Router()
 
-export { availabilityRoute }
+noShowRuleRoute.get("/rules", getById)
+noShowRuleRoute.post("/rules", noShowRoleCreateValidate, create)
+noShowRuleRoute.put("/rules/:noShowRule_id",noShowRoleUpdateValidate, update)
+noShowRuleRoute.delete("/rules/:noShowRule_id",noShowRoleDeleteValidate, remove)
+
+export {noShowRuleRoute }

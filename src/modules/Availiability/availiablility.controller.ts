@@ -24,8 +24,9 @@ export const create: RequestHandler = async (req, res) => {
 
 export const getById: RequestHandler = async (req, res) => {
   try {
-    const { Availiablility_id } = req.params
-    const result = await Availiablility.getById(Number(Availiablility_id));
+    const { professional_id } = req.params
+
+    const result = await Availiablility.getById(Number(professional_id));
 
     return res.status(200).json(result);
   } catch (error) {
@@ -43,8 +44,8 @@ export const getById: RequestHandler = async (req, res) => {
 
 export const update: RequestHandler = async (req, res) => {
   try {
-    const { business_id } = req.params
-    const result = await Availiablility.update(Number(business_id), req.body);
+    const { availability_id } = req.params
+    const result = await Availiablility.update(Number(availability_id), req.body);
 
     return res.status(200).json(result);
   } catch (error) {
@@ -63,10 +64,10 @@ export const update: RequestHandler = async (req, res) => {
 
 export const remove: RequestHandler = async (req, res) => {
   try {
-    const { Availiablility_id } = req.params
-    const result = await Availiablility.delete(Number(Availiablility_id));
+    const { availability_id } = req.params
+    const result = await Availiablility.delete(Number(availability_id));
 
-    return res.status(200).json(result);
+    return res.status(204).json(result);
   } catch (error) {
     if (error instanceof AppError) {
       return res

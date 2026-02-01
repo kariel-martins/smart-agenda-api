@@ -9,7 +9,7 @@ const professionalSchema = z.object({
 })
 
 const professionalByIdSchema = z.object({
-    professional_id: schemaVars.text
+    professional_id: z.string()
 })
 
 export const professionalCreateValidate = validation((getSchemas) => ({

@@ -3,17 +3,18 @@ import { schemaVars } from "../../../share/utils/schemasVars"
 import { validation } from "../../../share/middlewares/Validation"
 
 const appointmentSchema = z.object({
-   professional_id: schemaVars.text,
+   professional_id: schemaVars.number,
    service_id: schemaVars.number,
    client_id: schemaVars.text,
-   data: schemaVars.text,
-   start_time: schemaVars.text
+   start_time: schemaVars.text,
+   end_time: schemaVars.text,
+   status: schemaVars.text,
+   day_of_week: schemaVars.text,
+   date: schemaVars.date
 })
 
-//business_id vai pelo jwt
-
 const appointmentByIdSchema = z.object({
-    professional_id: schemaVars.text
+    appointments_id: schemaVars.number
 })
 
 export const appointmentCreateValidate = validation((getSchemas) => ({
@@ -21,6 +22,14 @@ export const appointmentCreateValidate = validation((getSchemas) => ({
 })) 
 
 export const appointmentValidate = validation((getSchemas) => ({
+    params: getSchemas(appointmentByIdSchema)
+})) 
+
+export const appointmentByDateValidate = validation((getSchemas) => ({
+    query: getSchemas(z.object({date: schemaVars.date}))
+})) 
+
+export const appointmentByIdValidate = validation((getSchemas) => ({
     params: getSchemas(appointmentByIdSchema)
 })) 
 

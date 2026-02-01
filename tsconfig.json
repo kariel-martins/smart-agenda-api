@@ -27,6 +27,6 @@
     /* Dev */
     "sourceMap": true
   },
-  "include": ["src"],
+  "include": ["src", "src/tests"],
   "exclude": ["node_modules", "dist"]
 }

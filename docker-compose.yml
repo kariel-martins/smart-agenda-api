@@ -1,22 +1,52 @@
+version: "3.8"
+
 networks:
   smart_agenda:
     driver: bridge
 
 volumes:
-  postgres_data: {}
+  postgres_data:
+  postgres_test_data:
 
 services:
+
   postgres:
     image: postgres:15
-    container_name: smart-agenda_db
+    container_name: smart_agenda_db
+
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: admin123
-      POSTGRES_DB: smart-agenda-database
+      POSTGRES_DB: smart_agenda_database
+
     restart: always
+
     ports:
       - "5432:5432"
+
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+    networks:
+      - smart_agenda
+
+
+  postgres_test:
+    image: postgres:15
+    container_name: smart_agenda_db_test
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: test1234
+      POSTGRES_DB: database_smart_agenda_test
+
+    restart: always
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+
     networks:
       - smart_agenda

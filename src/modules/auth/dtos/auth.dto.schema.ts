@@ -28,14 +28,6 @@ export const loginValidation = validation((getSchemas) => ({
 
 export type loginData = z.infer<typeof loginSchema>;
 
-const refreshSchema = z.object({
-  user_id: schemaVars.text,
-});
-
-export const refreshValidation = validation((getSchemas) => ({
-  params: getSchemas(refreshSchema),
-}));
-
 const forgotPasswordSchema = z.object({
   email: schemaVars.email,
 });
@@ -50,13 +42,9 @@ const resetPasswordSchema = z.object({
   password: schemaVars.password,
   confirmPassword: schemaVars.password,
 });
-const resetPasswordUserIdSchema = z.object({
-  user_id: schemaVars.text,
-});
 
 export const resetPasswordValidation = validation((getSchemas) => ({
   body: getSchemas(resetPasswordSchema),
-  params: getSchemas(resetPasswordUserIdSchema),
 }));
 
 export type resetPasswordData = z.infer<typeof resetPasswordSchema>;

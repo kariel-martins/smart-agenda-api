@@ -4,7 +4,7 @@ import { validation } from "../../../share/middlewares/Validation"
 
 const clientSchema = z.object({
     name: schemaVars.text,
-    phone: schemaVars.number,
+    phone: schemaVars.text,
     email: schemaVars.email,
 })
 

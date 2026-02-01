@@ -1,6 +1,7 @@
 import { ExecuteHandler } from "../../core/handlers/executeHandler";
 import { AvailiablilityRepository } from "./availiablility.repository";
-import { Availiablility, InsertAvailiablility, UpdateAvailiablility } from "./dtos/avaliability.dto.type";
+import { availiablilityData } from "./dtos/avaliability.dto.schema";
+import { Availiablility, UpdateAvailiablility } from "./dtos/avaliability.dto.type";
 
 export class AvailiablilityService {
   constructor(
@@ -8,7 +9,7 @@ export class AvailiablilityService {
     private readonly repo: AvailiablilityRepository,
   ) {}
 
-  public create(data: InsertAvailiablility): Promise<any> {
+  public create(data: availiablilityData): Promise<Availiablility> {
     return this.execute.service(
       async () => {
         const result = await this.repo.create(data);
@@ -20,10 +21,10 @@ export class AvailiablilityService {
     );
   }
 
-  public getById(Availabilities_id: number): Promise<any> {
+  public getById(professional_id: number): Promise<any> {
     return this.execute.service(
       async () => {
-        const result = await this.repo.getById(Availabilities_id);
+        const result = await this.repo.getById(professional_id);
 
         return result;
       },
@@ -56,12 +57,11 @@ export class AvailiablilityService {
     );
   }
 
-  public delete(Availabilities_id: number): Promise<any> {
+  public delete(Availabilities_id: number): Promise<void> {
     return this.execute.service(
       async () => {
-        const result = await this.repo.delete(Availabilities_id);
+        await this.repo.delete(Availabilities_id);
 
-        return result;
       },
       "Erro ao executar delete",
       "Availability/availability.service.ts/delete",

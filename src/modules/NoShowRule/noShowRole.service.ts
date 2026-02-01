@@ -1,6 +1,11 @@
 import { ExecuteHandler } from "../../core/handlers/executeHandler";
 import { NoShowRoleRepository } from "./noShowRole.repository";
-import { NoShowRole, InsertNoShowRole, UpdateNoShowRole } from "./dtos/noShowRole.dto.type";
+import {
+  NoShowRole,
+  InsertNoShowRole,
+  UpdateNoShowRole,
+} from "./dtos/noShowRole.dto.type";
+import { AppError } from "../../core/errors/AppError";
 
 export class NoShowRoleService {
   constructor(
@@ -8,10 +13,15 @@ export class NoShowRoleService {
     private readonly repo: NoShowRoleRepository,
   ) {}
 
-  public create(data: InsertNoShowRole): Promise<any> {
+  public create(businessId: string, data: InsertNoShowRole): Promise<any> {
     return this.execute.service(
       async () => {
-        const result = await this.repo.create(data);
+        if (!businessId) throw new AppError("businessId inválido ou ausente!");
+
+        const result = await this.repo.create({
+          ...data,
+          businesses_id: businessId,
+        });
 
         return result;
       },
@@ -20,10 +30,12 @@ export class NoShowRoleService {
     );
   }
 
-  public getById(professional_id: number): Promise<any> {
+  public getById(businessId: string): Promise<NoShowRole[]> {
     return this.execute.service(
       async () => {
-        const result = await this.repo.getById(professional_id);
+        if (!businessId) throw new AppError("businessId inválido ou ausente!");
+
+        const result = await this.repo.getById(businessId);
 
         return result;
       },
@@ -32,22 +44,13 @@ export class NoShowRoleService {
     );
   }
 
-  public getAll(): Promise<NoShowRole[]> {
+  public update(
+    noShowRule_id: number,
+    data: UpdateNoShowRole,
+  ): Promise<NoShowRole> {
     return this.execute.service(
       async () => {
-        const result = await this.repo.getAll();
-
-        return result;
-      },
-      "Erro ao executar getAll",
-      "NoShowRole/noShowRole.service.ts/getAll",
-    );
-  }
-
-  public update(professional_id: number, data: UpdateNoShowRole): Promise<any> {
-    return this.execute.service(
-      async () => {
-        const result = await this.repo.update(professional_id, data);
+        const result = await this.repo.update(noShowRule_id, data);
 
         return result;
       },
@@ -56,12 +59,10 @@ export class NoShowRoleService {
     );
   }
 
-  public delete(professional_id: number): Promise<any> {
+  public delete(noShowRule_id: number): Promise<void> {
     return this.execute.service(
       async () => {
-        const result = await this.repo.delete(professional_id);
-
-        return result;
+        await this.repo.delete(noShowRule_id);
       },
       "Erro ao executar delete",
       "NoShowRole/noShowRole.service.ts/delete",

@@ -1,12 +1,14 @@
 import { Router } from "express";
-import { create, getById, remove, update } from "./appointment.controller";
-import { availiablilityCreateValidate, availiablilityDeleteValidate, availiablilityUpdateValidate } from "../Availiability/dtos/avaliability.dto.schema";
+import { cancel, complete, confirm, create, getByDate, noShow } from "./appointment.controller";
+import { appointmentByDateValidate, appointmentByIdValidate, appointmentCreateValidate, appointmentUpdateValidate } from "./dtos/appointment.dto.schema";
 
-const availabilityRoute = Router()
+const appointmentRoute = Router()
 
-availabilityRoute.get("/professionals", getById)
-availabilityRoute.post("/professionals", availiablilityCreateValidate, create)
-availabilityRoute.put("/professionals/:professionals_id", availiablilityUpdateValidate, update)
-availabilityRoute.delete("/professionals/:professionals_id", availiablilityDeleteValidate, remove)
+appointmentRoute.get("/", appointmentByDateValidate, getByDate)
+appointmentRoute.post("/",appointmentCreateValidate, create)
+appointmentRoute.patch("/:appointments_id/confirm",appointmentByIdValidate, confirm)
+appointmentRoute.patch("/:appointments_id/complete",appointmentByIdValidate, complete)
+appointmentRoute.patch("/:appointments_id/cancel",appointmentByIdValidate, cancel)
+appointmentRoute.patch("/:appointments_id/no-show",appointmentByIdValidate, noShow)
 
-export { availabilityRoute }
+export { appointmentRoute }

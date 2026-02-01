@@ -1,6 +1,11 @@
+import { AppError } from "../../core/errors/AppError";
 import { ExecuteHandler } from "../../core/handlers/executeHandler";
 import { AppointmentRepository } from "./appointment.repository";
-import { Appointment, InsertAppointment, UpdateAppointment } from "./dtos/appointment.dto.type";
+import {
+  Appointment,
+  InsertAppointment,
+  UpdateAppointment,
+} from "./dtos/appointment.dto.type";
 
 export class AppointmentService {
   constructor(
@@ -8,10 +13,17 @@ export class AppointmentService {
     private readonly repo: AppointmentRepository,
   ) {}
 
-  public create(data: InsertAppointment): Promise<any> {
+  public create(businessId: string, data: InsertAppointment): Promise<Appointment> {
     return this.execute.service(
       async () => {
-        const result = await this.repo.create(data);
+        if (!businessId) throw new AppError("businessId inválido ou ausente!");
+        
+        const result = await this.repo.create({
+          ...data,
+          professional_id: Number(data.professional_id),
+          service_id: Number(data.service_id),
+          businesses_id: businessId,
+        });
 
         return result;
       },
@@ -20,10 +32,14 @@ export class AppointmentService {
     );
   }
 
-  public getById(professional_id: number): Promise<any> {
+  public getByDate(date: string): Promise<Appointment[]> {
     return this.execute.service(
       async () => {
-        const result = await this.repo.getById(professional_id);
+        if (!date) {
+        throw new Error("Date não informado");
+      }
+
+        const result = await this.repo.getByDate(date);
 
         return result;
       },
@@ -44,27 +60,18 @@ export class AppointmentService {
     );
   }
 
-  public update(professional_id: number, data: UpdateAppointment): Promise<any> {
+  public update(
+    appointments_id: number,
+    data: UpdateAppointment,
+  ): Promise<Appointment> {
     return this.execute.service(
       async () => {
-        const result = await this.repo.update(professional_id, data);
+        const result = await this.repo.update(appointments_id, data);
 
         return result;
       },
       "Erro ao executar update",
       "Appointment/appointment.service.ts/update",
-    );
-  }
-
-  public delete(professional_id: number): Promise<any> {
-    return this.execute.service(
-      async () => {
-        const result = await this.repo.delete(professional_id);
-
-        return result;
-      },
-      "Erro ao executar delete",
-      "Appointment/appointment.service.ts/delete",
     );
   }
 }

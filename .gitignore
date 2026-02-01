@@ -3,5 +3,7 @@ package-lock.json
 
 dist
 
+/coverage
+.vscode
 .env*
 !.env.example

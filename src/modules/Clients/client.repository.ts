@@ -18,15 +18,15 @@ export class ClientRepository {
     );
   }
 
-  public getById(client_id: string): Promise<Client> {
+  public getById(businessesId: string): Promise<Client[]> {
     return this.execute.repository(
       async () => {
         const result = await db
           .select()
           .from(clients)
-          .where(eq(clients.id, client_id));
+          .where(eq(clients.businesses_id, businessesId));
 
-        return result[0];
+        return result;
       },
       "Erro ao executar getById",
       "Client/client.repository.ts/create",

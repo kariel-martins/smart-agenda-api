@@ -4,9 +4,9 @@ import { serviceCreateValidate, serviceDeleteValidate, serviceUpdateValidate } f
 
 const serviceRoute = Router()
 
-serviceRoute.get("/professionals", getById)
-serviceRoute.post("/professionals", serviceCreateValidate, create)
-serviceRoute.put("/professionals/:professionals_id", serviceUpdateValidate, update)
-serviceRoute.delete("/professionals/:professionals_id", serviceDeleteValidate, remove)
+serviceRoute.get("/", getById)
+serviceRoute.post("/", serviceCreateValidate, create)
+serviceRoute.put("/:services_id", serviceUpdateValidate, update)
+serviceRoute.delete("/:services_id", serviceDeleteValidate, remove)
 
 export { serviceRoute }

@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { BusinessGetByIdValidateion, BusinessUpdateValidateion } from "./dtos/business.dto.schema";
-import { get, update } from "./business.controller";
+import { BusinessUpdateValidateion } from "./dtos/business.dto.schema";
+import { getById, update } from "./business.controller";
 
 const businessRoute = Router()
 
-businessRoute.get("/profile", BusinessGetByIdValidateion, get)
+businessRoute.get("/profile", getById)
 businessRoute.put("/profile", BusinessUpdateValidateion, update)
 
-// 
+export { businessRoute }

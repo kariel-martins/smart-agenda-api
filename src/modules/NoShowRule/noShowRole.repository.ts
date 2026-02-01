@@ -18,29 +18,17 @@ export class NoShowRoleRepository {
     );
   }
 
-  public getById(noShowRole_id: number): Promise<NoShowRole> {
+  public getById(businessId: string): Promise<NoShowRole[]> {
     return this.execute.repository(
       async () => {
         const result = await db
           .select()
           .from(no_show_rules)
-          .where(eq(no_show_rules.id, noShowRole_id));
-
-        return result[0];
-      },
-      "Erro ao executar getById",
-      "NoShowRole/noShowRole.repository.ts/create",
-    );
-  }
-
-  public getAll(): Promise<NoShowRole[]> {
-    return this.execute.repository(
-      async () => {
-        const result = await db.select().from(no_show_rules);
+          .where(eq(no_show_rules.businesses_id, businessId))
 
         return result;
       },
-      "Erro ao executar getAll",
+      "Erro ao executar getById",
       "NoShowRole/noShowRole.repository.ts/create",
     );
   }

@@ -4,9 +4,9 @@ import { professionalCreateValidate, professionalDeleteValidate, professionalUpd
 
 const professionalRoute = Router()
 
-professionalRoute.get("/professionals", getById)
-professionalRoute.post("/professionals", professionalCreateValidate, create)
-professionalRoute.put("/professionals/:professionals_id", professionalUpdateValidate, update)
-professionalRoute.delete("/professionals/:professionals_id", professionalDeleteValidate, remove)
+professionalRoute.get("/", getById)
+professionalRoute.post("/", professionalCreateValidate, create)
+professionalRoute.put("/:professional_id", professionalUpdateValidate, update)
+professionalRoute.delete("/:professional_id", professionalDeleteValidate, remove)
 
 export { professionalRoute }

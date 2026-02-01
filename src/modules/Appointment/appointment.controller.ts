@@ -6,7 +6,8 @@ const Appointment = makeAppointmentService()
 
 export const create: RequestHandler = async (req, res) => {
   try {
-    const result = await Appointment.create(req.body);
+    const businessId = req.cookies.businessId
+    const result = await Appointment.create(businessId, req.body);
 
     return res.status(200).json(result);
   } catch (error) {
@@ -22,10 +23,10 @@ export const create: RequestHandler = async (req, res) => {
   }
 };
 
-export const getById: RequestHandler = async (req, res) => {
+export const getByDate: RequestHandler = async (req, res) => {
   try {
-    const { Appointment_id } = req.params
-    const result = await Appointment.getById(Number(Appointment_id));
+    const { date } = req.query as {date: string}
+    const result = await Appointment.getByDate(date);
 
     return res.status(200).json(result);
   } catch (error) {
@@ -41,11 +42,10 @@ export const getById: RequestHandler = async (req, res) => {
   }
 };
 
-export const update: RequestHandler = async (req, res) => {
+export const complete: RequestHandler = async (req, res) => {
   try {
-    const { business_id } = req.params
-    const result = await Appointment.update(Number(business_id), req.body);
-
+     const { appointments_id } = req.params
+    const result = await Appointment.update(Number(appointments_id), {status: "completed"});
     return res.status(200).json(result);
   } catch (error) {
     if (error instanceof AppError) {
@@ -54,17 +54,17 @@ export const update: RequestHandler = async (req, res) => {
         .json({ errors: { default: error.message } });
     }
     res.status(500).json({
-      message: "Erro ao processar update",
-      context: "Appointment/appointment.controller.ts/update",
+      message: "Erro ao processar complete",
+      context: "Appointment/appointment.controller.ts/complete",
     });
   }
 };
 
-
-export const remove: RequestHandler = async (req, res) => {
+export const cancel: RequestHandler = async (req, res) => {
   try {
-    const { Appointment_id } = req.params
-    const result = await Appointment.delete(Number(Appointment_id));
+    const { appointments_id } = req.params
+    const { cancel_reason } = req.body
+    const result = await Appointment.update(Number(appointments_id), {cancel_reason, status: "canceled"});
 
     return res.status(200).json(result);
   } catch (error) {
@@ -74,8 +74,46 @@ export const remove: RequestHandler = async (req, res) => {
         .json({ errors: { default: error.message } });
     }
     res.status(500).json({
-      message: "Erro ao processar remove",
-      context: "Appointment/appointment.controller.ts/remove",
+      message: "Erro ao processar cancel",
+      context: "Appointment/appointment.controller.ts/cancel",
+    });
+  }
+};
+
+export const confirm: RequestHandler = async (req, res) => {
+  try {
+     const { appointments_id } = req.params
+    const result = await Appointment.update(Number(appointments_id), {status: "confirmed", confirm_at: new Date()});
+
+    return res.status(200).json(result);
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res
+        .status(error.statusCode)
+        .json({ errors: { default: error.message } });
+    }
+    res.status(500).json({
+      message: "Erro ao processar confirm",
+      context: "Appointment/appointment.controller.ts/confirm",
+    });
+  }
+};
+
+export const noShow: RequestHandler = async (req, res) => {
+  try {
+     const { appointments_id } = req.params
+    const result = await Appointment.update(Number(appointments_id), {status: "no_show", cancel_reason: "contratante aunsente"});
+
+    return res.status(200).json(result);
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res
+        .status(error.statusCode)
+        .json({ errors: { default: error.message } });
+    }
+    res.status(500).json({
+      message: "Erro ao processar confirm",
+      context: "Appointment/appointment.controller.ts/confirm",
     });
   }
 };

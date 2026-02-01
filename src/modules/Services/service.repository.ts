@@ -10,6 +10,7 @@ export class ServiceRepository {
   public create(data: InsertService): Promise<Service> {
     return this.execute.repository(
       async () => {
+       
         const result = await db.insert(services).values(data).returning();
         return result[0];
       },
@@ -18,15 +19,15 @@ export class ServiceRepository {
     );
   }
 
-  public getById(service_id: number): Promise<Service> {
+  public getById(businessId: string): Promise<Service[]> {
     return this.execute.repository(
       async () => {
         const result = await db
           .select()
           .from(services)
-          .where(eq(services.id, service_id));
+          .where(eq(services.businesses_id, businessId));
 
-        return result[0];
+        return result;
       },
       "Erro ao executar getById",
       "Service/service.repository.ts/create",

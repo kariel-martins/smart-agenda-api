@@ -10,13 +10,14 @@ export class ProfessionalService {
     private readonly repo: ProfessionalRepository,
   ) {}
 
-  public create(data: professionalData): Promise<any> {
+  public create(businessId: string, data: professionalData): Promise<any> {
     return this.execute.service(
       async () => {
         const allowedRoles = ["ADMIN", "MANAGER"]
+        if (!businessId) throw new AppError("businessId ausente ou inválido")
         if (!allowedRoles.includes(data.role)) throw new AppError("Usuário não autorizado para ação!")
 
-        const result = await this.repo.create(data);
+        const result = await this.repo.create({businesses_id: businessId, ...data});
 
         return result;
       },
@@ -25,34 +26,27 @@ export class ProfessionalService {
     );
   }
 
-  public getById(professional_id: number): Promise<any> {
+  public getByIdBusiness(businessId: string): Promise<Professional[]> {
     return this.execute.service(
       async () => {
-        const result = await this.repo.getById(professional_id);
+        if (!businessId) throw new AppError("businessId ausente ou inválido")
+
+        const result = await this.repo.getByIdBusiness(businessId);
 
         return result;
       },
-      "Erro ao executar getById",
-      "Professional/professional.service.ts/getById",
+      "Erro ao executar getByIdBusiness",
+      "Professional/professional.service.ts/getByIdBusiness",
     );
   }
 
-  public getAll(): Promise<Professional[]> {
+  public update(professional_id: number, data: professionalData): Promise<any> {
     return this.execute.service(
       async () => {
-        const result = await this.repo.getAll();
+        const allowedRoles = ["ADMIN", "MANAGER"]
+        if (!allowedRoles.includes(data.role)) throw new AppError("Usuário não autorizado para ação!")
 
-        return result;
-      },
-      "Erro ao executar getAll",
-      "Professional/professional.service.ts/getAll",
-    );
-  }
-
-  public update(professional_id: number, data: UpdateProfessional): Promise<any> {
-    return this.execute.service(
-      async () => {
-        const result = await this.repo.update(professional_id, data);
+          const result = await this.repo.update(professional_id, {name: data.name, specialty: data.specialty});
 
         return result;
       },
@@ -61,12 +55,13 @@ export class ProfessionalService {
     );
   }
 
-  public delete(professional_id: number): Promise<any> {
+  public delete(professional_id: number): Promise<{message: string}> {
     return this.execute.service(
       async () => {
-        const result = await this.repo.delete(professional_id);
+        
+        await this.repo.delete(professional_id);
 
-        return result;
+        return { message: "professional deletado com sucesso!"};
       },
       "Erro ao executar delete",
       "Professional/professional.service.ts/delete",

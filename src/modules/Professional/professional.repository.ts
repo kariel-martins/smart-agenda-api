@@ -18,30 +18,18 @@ export class ProfessionalRepository {
     );
   }
 
-  public getById(professional_id: number): Promise<Professional> {
+  public getByIdBusiness(businessId: string): Promise<Professional[]> {
     return this.execute.repository(
       async () => {
         const result = await db
           .select()
           .from(professionals)
-          .where(eq(professionals.id, professional_id));
-
-        return result[0];
-      },
-      "Erro ao executar getById",
-      "Professional/Professional.repository.ts/getById",
-    );
-  }
-
-  public getAll(): Promise<Professional[]> {
-    return this.execute.repository(
-      async () => {
-        const result = await db.select().from(professionals);
+          .where(eq(professionals.businesses_id, businessId));
 
         return result;
       },
-      "Erro ao executar getAll",
-      "Professional/Professional.repository.ts/getAll",
+      "Erro ao executar getByIdBusiness",
+      "Professional/Professional.repository.ts/getByIdBusiness",
     );
   }
 

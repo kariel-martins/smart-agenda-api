@@ -4,6 +4,7 @@ import { env } from "./config/env";
 import { router } from "./routes";
 import { errorHandler } from "./core/errors/errorHandler";
 import { setupSwagger } from "./config/swagger";
+import cookieParser from "cookie-parser"
 
 const { frontend_url } = env()
 const app = express()
@@ -19,6 +20,8 @@ app.use(
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+app.use(cookieParser());
+
 
 app.use(router)
 app.use(errorHandler)

@@ -1,6 +1,6 @@
 
 export interface IJwtData {
-  scope: string;
+  scope?: string;
   purpose: string;
   sub?: string;
 }

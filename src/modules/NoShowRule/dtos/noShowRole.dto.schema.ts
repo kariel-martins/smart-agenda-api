@@ -7,18 +7,12 @@ const noShowRoleSchema = z.object({
    action: schemaVars.text,
 })
 
-//business_id vai pelo jwt
-
 const noShowRoleByIdSchema = z.object({
-    professional_id: schemaVars.text
+    noShowRule_id: schemaVars.number
 })
 
 export const noShowRoleCreateValidate = validation((getSchemas) => ({
     body: getSchemas(noShowRoleSchema)
-})) 
-
-export const noShowRoleValidate = validation((getSchemas) => ({
-    params: getSchemas(noShowRoleByIdSchema)
 })) 
 
 export const noShowRoleUpdateValidate = validation((getSchemas) => ({

@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">41.66% </span>
+                <span class="strong">80% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>5/12</span>
+                <span class='fraction'>8/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/6</span>
+                <span class='fraction'>3/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">41.66% </span>
+                <span class="strong">80% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>5/12</span>
+                <span class='fraction'>8/10</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -97,82 +97,94 @@
 <a name='L32'></a><a href='#L32'>32</a>
 <a name='L33'></a><a href='#L33'>33</a>
 <a name='L34'></a><a href='#L34'>34</a>
-<a name='L35'></a><a href='#L35'>35</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Request, Response, NextFunction } from "express";
 import { AppError } from "./AppError";
-import { env } from "../../config/env"
+import { env } from "../../config/env";
 &nbsp;
-const { debug } = env()
-const DEBUG = debug === "true"
+const { debug } = env();
+const DEBUG = debug === "true";
 &nbsp;
-export function <span class="fstat-no" title="function not covered" >errorHandler(</span>
-    err: Error,
-    _req: Request,
-    res: Response,
-    _next: NextFunction
+export function errorHandler(
+  err: Error,
+  _req: Request,
+  res: Response,
+  _next: NextFunction
 ) {
-<span class="cstat-no" title="statement not covered" >    if ( err instanceof AppError ) {</span>
-<span class="cstat-no" title="statement not covered" >        console.error(</span>
-            `[APP ERROR] ${err.context ?? "APP"} -&gt; ${err.message}`
-        )
 &nbsp;
-<span class="cstat-no" title="statement not covered" >        return res.status(err.statusCode).json({</span>
-            status: "error",
-            message: err.message
-        })
-    }
+  // Erros conhecidos da aplicação
+  <span class="missing-if-branch" title="else path not taken" >E</span>if (err instanceof AppError) {
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    if ( DEBUG ) {</span>
-<span class="cstat-no" title="statement not covered" >        console.error(`[UNEXPECTED] ${err.message}`, { stack: err.stack })</span>
-    } else {
-<span class="cstat-no" title="statement not covered" >        console.error(`[UNEXPECTED] ${err.message}`)</span>
-    }
+    console.error(
+      `[APP ERROR] ${err.context ?? "APP"} -&gt; ${err.message}`
+    );
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    return res.status(500).json({</span>
-        status: "error",
-        message: "Erro interno no servidor"
-    })
-}</pre></td></tr></table></pre>
+    return res.status(err.statusCode).json({
+      status: "error",
+      message: err.message,
+    });
+  }
+&nbsp;
+  // Erros inesperados
+<span class="cstat-no" title="statement not covered" >  console.error(</span>
+    `[UNEXPECTED ERROR] ${err.message}`,
+    DEBUG ? err.stack : ""
+  );
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  return res.status(500).json({</span>
+    status: "error",
+    message: "Erro interno no servidor",
+  });
+}
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-26T17:47:01.380Z
+                at 2026-02-01T18:10:19.267Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

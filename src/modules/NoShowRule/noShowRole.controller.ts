@@ -2,11 +2,12 @@ import { RequestHandler } from "express";
 import { AppError } from "../../core/errors/AppError";
 import { makeNoShowRoleService } from "./noShowRole.factory";
 
-const NoShowRole = makeNoShowRoleService()
+const NoShowRole = makeNoShowRoleService();
 
 export const create: RequestHandler = async (req, res) => {
   try {
-    const result = await NoShowRole.create(req.body);
+     const businessId = req.cookies.businessId;
+    const result = await NoShowRole.create(businessId, req.body);
 
     return res.status(200).json(result);
   } catch (error) {
@@ -24,8 +25,8 @@ export const create: RequestHandler = async (req, res) => {
 
 export const getById: RequestHandler = async (req, res) => {
   try {
-    const { NoShowRole_id } = req.params
-    const result = await NoShowRole.getById(Number(NoShowRole_id));
+    const businessId = req.cookies.businessId;
+    const result = await NoShowRole.getById(businessId);
 
     return res.status(200).json(result);
   } catch (error) {
@@ -43,8 +44,8 @@ export const getById: RequestHandler = async (req, res) => {
 
 export const update: RequestHandler = async (req, res) => {
   try {
-    const { business_id } = req.params
-    const result = await NoShowRole.update(Number(business_id), req.body);
+    const { noShowRule_id } = req.params;
+    const result = await NoShowRole.update(Number(noShowRule_id), req.body);
 
     return res.status(200).json(result);
   } catch (error) {
@@ -60,13 +61,12 @@ export const update: RequestHandler = async (req, res) => {
   }
 };
 
-
 export const remove: RequestHandler = async (req, res) => {
   try {
-    const { NoShowRole_id } = req.params
-    const result = await NoShowRole.delete(Number(NoShowRole_id));
+    const { noShowRule_id } = req.params;
+    await NoShowRole.delete(Number(noShowRule_id));
 
-    return res.status(200).json(result);
+    return res.status(204);
   } catch (error) {
     if (error instanceof AppError) {
       return res

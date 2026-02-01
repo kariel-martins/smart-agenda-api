@@ -1,5 +1,5 @@
 {
-  "id": "8b2d8bf7-69bd-4622-a50e-0ee08d468674",
+  "id": "cffa288c-e904-41cb-aa4d-9110fc9d00c9",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -18,7 +18,7 @@
           "name": "businesses_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "professional_id": {
           "name": "professional_id",
@@ -30,7 +30,7 @@
           "name": "client_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "service_id": {
           "name": "service_id",
@@ -40,22 +40,21 @@
         },
         "date": {
           "name": "date",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "default": "NOW()"
+          "notNull": true
         },
         "start_time": {
           "name": "start_time",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "end_time": {
           "name": "end_time",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "status": {
           "name": "status",
@@ -66,10 +65,9 @@
         },
         "cancel_reason": {
           "name": "cancel_reason",
-          "type": "boolean",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "default": false
+          "notNull": false
         },
         "confirm_at": {
           "name": "confirm_at",
@@ -170,15 +168,15 @@
         },
         "start_time": {
           "name": "start_time",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "end_time": {
           "name": "end_time",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         }
       },
       "indexes": {},
@@ -228,7 +226,7 @@
         },
         "phone": {
           "name": "phone",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -238,11 +236,19 @@
           "primaryKey": false,
           "notNull": true
         },
-        "timezome": {
-          "name": "timezome",
-          "type": "timestamp with time zone",
+        "active": {
+          "name": "active",
+          "type": "boolean",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": false
+        },
+        "timezone": {
+          "name": "timezone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'America/Sao_Paulo'"
         },
         "created_at": {
           "name": "created_at",
@@ -283,7 +289,7 @@
           "name": "businesses_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "name": {
           "name": "name",
@@ -293,7 +299,7 @@
         },
         "phone": {
           "name": "phone",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -485,7 +491,7 @@
           "name": "businesses_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "name": {
           "name": "name",
@@ -536,6 +542,72 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.refresh_tokens": {
+      "name": "refresh_tokens",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "token_hash": {
+          "name": "token_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "NOW()"
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "revoked": {
+          "name": "revoked",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "refresh_tokens_user_id_users_id_fk": {
+          "name": "refresh_tokens_user_id_users_id_fk",
+          "tableFrom": "refresh_tokens",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.services": {
       "name": "services",
       "schema": "",
@@ -550,7 +622,7 @@
           "name": "businesses_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "name": {
           "name": "name",
@@ -560,13 +632,13 @@
         },
         "duration_minutes": {
           "name": "duration_minutes",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
         "price": {
           "name": "price",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -629,12 +701,18 @@
           "primaryKey": false,
           "notNull": true
         },
-        "role": {
-          "name": "role",
-          "type": "text",
+        "user_role": {
+          "name": "user_role",
+          "type": "user_role",
+          "typeSchema": "public",
           "primaryKey": false,
-          "notNull": true,
-          "default": "'staff'"
+          "notNull": false
+        },
+        "business_id": {
+          "name": "business_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
@@ -651,7 +729,21 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "users_business_id_businesses_id_fk": {
+          "name": "users_business_id_businesses_id_fk",
+          "tableFrom": "users",
+          "tableTo": "businesses",
+          "columnsFrom": [
+            "business_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "users_email_unique": {
@@ -684,8 +776,17 @@
         "scheduled",
         "confirmed",
         "completed",
-        "conceled",
+        "canceled",
         "no_show"
+      ]
+    },
+    "public.user_role": {
+      "name": "user_role",
+      "schema": "public",
+      "values": [
+        "admin",
+        "manager",
+        "staff"
       ]
     }
   },

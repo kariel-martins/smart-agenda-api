@@ -4,9 +4,9 @@ import { clientCreateValidate, clientDeleteValidate, clientUpdateValidate } from
 
 const clientRoute = Router()
 
-clientRoute.get("/professionals", getById)
-clientRoute.post("/professionals", clientCreateValidate, create)
-clientRoute.put("/professionals/:professionals_id", clientUpdateValidate, update)
-clientRoute.delete("/professionals/:professionals_id", clientDeleteValidate, remove)
+clientRoute.get("/", getById)
+clientRoute.post("/", clientCreateValidate, create)
+clientRoute.put("/:client_id", clientUpdateValidate, update)
+clientRoute.delete("/:client_id", clientDeleteValidate, remove)
 
 export { clientRoute }

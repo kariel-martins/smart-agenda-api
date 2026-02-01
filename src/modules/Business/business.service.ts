@@ -1,6 +1,7 @@
+import { AppError } from "../../core/errors/AppError";
 import { ExecuteHandler } from "../../core/handlers/executeHandler";
 import { BusinessRepository } from "./business.repository";
-import { UpdateBusiness } from "./dtos/business.dto.types";
+import { Business, UpdateBusiness } from "./dtos/business.dto.types";
 
 export class BusinessService {
   constructor(
@@ -8,10 +9,12 @@ export class BusinessService {
     private readonly repo: BusinessRepository,
   ) {}
 
-  public getById(business_id: string): Promise<any> {
+  public getById(businessId: string): Promise<Business> {
     return this.execute.service(
       async () => {
-        const result = await this.repo.getById(business_id);
+        if (!businessId) throw new AppError("Error ao buscar business", 400);
+
+        const result = await this.repo.getById(businessId);
 
         return result;
       },
@@ -20,10 +23,12 @@ export class BusinessService {
     );
   }
 
-  public update(business_id: string, data: UpdateBusiness): Promise<any> {
+  public update(businessId: string, data: UpdateBusiness): Promise<Business> {
     return this.execute.service(
       async () => {
-        const result = await this.repo.update(business_id, data);
+        if (!businessId) throw new AppError("Error ao buscar business", 400);
+        
+        const result = await this.repo.update(businessId, data);
 
         return result;
       },

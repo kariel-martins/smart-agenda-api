@@ -18,13 +18,13 @@ export class AvailiablilityRepository {
     );
   }
 
-  public getById(availiablility_id: number): Promise<Availiablility> {
+  public getById(professional_id: number): Promise<Availiablility> {
     return this.execute.repository(
       async () => {
         const result = await db
           .select()
           .from(availabilities)
-          .where(eq(availabilities.id, availiablility_id));
+          .where(eq(availabilities.professional_id, professional_id));
 
         return result[0];
       },

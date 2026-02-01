@@ -1,6 +1,7 @@
 import { ExecuteHandler } from "../../core/handlers/executeHandler";
 import { InsertClient, Client, UpdateClient } from "./dtos/client.dto.type";
 import { ClientRepository } from "./client.repository";
+import { AppError } from "../../core/errors/AppError";
 
 export class ClientService {
   constructor(
@@ -8,10 +9,13 @@ export class ClientService {
     private readonly repo: ClientRepository,
   ) {}
 
-  public create(data: InsertClient): Promise<any> {
+  public create(businessId: string, data: InsertClient): Promise<any> {
     return this.execute.service(
       async () => {
-        const result = await this.repo.create(data);
+
+         if (!businessId) throw new AppError("businessId inválido ou ausente!");
+
+        const result = await this.repo.create({...data, businesses_id: businessId});
 
         return result;
       },
@@ -20,10 +24,10 @@ export class ClientService {
     );
   }
 
-  public getById(client_id: string): Promise<any> {
+  public getById(businessId: string): Promise<Client[]> {
     return this.execute.service(
       async () => {
-        const result = await this.repo.getById(client_id);
+        const result = await this.repo.getById(businessId);
 
         return result;
       },
@@ -32,19 +36,7 @@ export class ClientService {
     );
   }
 
-  public getAll(): Promise<Client[]> {
-    return this.execute.service(
-      async () => {
-        const result = await this.repo.getAll();
-
-        return result;
-      },
-      "Erro ao executar getAll",
-      "Clients/client.service.ts/getAll",
-    );
-  }
-
-  public update(client_id: string, data: UpdateClient): Promise<any> {
+  public update(client_id: string, data: UpdateClient): Promise<Client> {
     return this.execute.service(
       async () => {
         const result = await this.repo.update(client_id, data);
@@ -56,12 +48,10 @@ export class ClientService {
     );
   }
 
-  public delete(client_id: string): Promise<any> {
+  public delete(client_id: string): Promise<void> {
     return this.execute.service(
       async () => {
-        const result = await this.repo.delete(client_id);
-
-        return result;
+        await this.repo.delete(client_id);
       },
       "Erro ao executar delete",
       "Clients/client.service.ts/delete",

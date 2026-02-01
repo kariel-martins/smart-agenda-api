@@ -4,9 +4,9 @@ import { availiablilityCreateValidate, availiablilityDeleteValidate, availiablil
 
 const availabilityRoute = Router()
 
-availabilityRoute.get("/professionals", getById)
-availabilityRoute.post("/professionals", availiablilityCreateValidate, create)
-availabilityRoute.put("/professionals/:professionals_id", availiablilityUpdateValidate, update)
-availabilityRoute.delete("/professionals/:professionals_id", availiablilityDeleteValidate, remove)
+availabilityRoute.get("/:professional_id", getById)
+availabilityRoute.post("/", availiablilityCreateValidate, create)
+availabilityRoute.put("/:availability_id", availiablilityUpdateValidate, update)
+availabilityRoute.delete("/:availability_id", availiablilityDeleteValidate, remove)
 
 export { availabilityRoute }

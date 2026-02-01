@@ -4,10 +4,10 @@ import { makeBusinessService } from "./business.factory";
 
 const service = makeBusinessService();
 
-export const get: RequestHandler = async (req, res) => {
+export const getById: RequestHandler = async (req, res) => {
   try {
-    const { business_id } = req.params as { business_id: string };
-    const result = await service.getById(business_id);
+    const businessId = req.cookies.businessId;
+    const result = await service.getById(businessId);
 
     return res.status(200).json(result);
   } catch (error) {
@@ -25,8 +25,8 @@ export const get: RequestHandler = async (req, res) => {
 
 export const update: RequestHandler = async (req, res) => {
   try {
-    const { business_id } = req.params as { business_id: string };
-    const result = await service.update(business_id, req.body);
+    const businessId = req.cookies.businessId;
+    const result = await service.update(businessId, req.body);
 
     return res.status(200).json(result);
   } catch (error) {
