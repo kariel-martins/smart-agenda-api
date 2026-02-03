@@ -3,7 +3,6 @@ import { ExecuteHandler } from "../../core/handlers/executeHandler";
 import { ICryptoService } from "../../share/services/interfaces/ICryptoService";
 import { IJWTService } from "../../share/services/interfaces/IJWTService";
 import { Masks } from "../../share/utils/masks";
-import { BusinessRepository } from "../Business/business.repository";
 import { AuthRepository } from "./auth.repository";
 import {
   createUsersData,
@@ -16,7 +15,6 @@ export class AuthService {
   constructor(
     private readonly execute: ExecuteHandler,
     private readonly repo: AuthRepository,
-    private readonly businessRepo: BusinessRepository,
     private readonly crypt: ICryptoService,
     private readonly jwtService: IJWTService,
     private readonly mask: Masks,
@@ -40,7 +38,7 @@ export class AuthService {
         const expiresAt = new Date();
         expiresAt.setDate(expiresAt.getDate() + 2);
 
-        const { userData, businessData } = await this.repo.create({
+        const { users: userData, businesses: businessData } = await this.repo.create({
           password_hash,
           tokenRefresh: refreshTokenHash,
           ...data,
@@ -86,11 +84,11 @@ export class AuthService {
         const expiresAt = new Date();
         expiresAt.setDate(expiresAt.getDate() + 2);
 
-        const { password_hash, email, ...rest } = await this.repo.getByEmail(
+        const { users, businesses } = await this.repo.getByEmail(
           data.email,
         );
 
-        const hasBusiness = await this.businessRepo.getById(rest.business_id);
+        const {password_hash, email, ...restUsers} = users
 
         const isValid = await this.crypt.verifyText(
           data.password,
@@ -103,7 +101,7 @@ export class AuthService {
         const refreshTokenHash = await this.crypt.hashText(refreshToken);
 
         await this.repo.createToken({
-          user_id: rest.id,
+          user_id: restUsers.id,
           token_hash: refreshTokenHash,
           expires_at: expiresAt,
         });
@@ -112,13 +110,13 @@ export class AuthService {
           {
             purpose: "REFRESH_TOKEN",
             scope: refreshToken,
-            sub: rest.id,
+            sub: restUsers.id,
           },
           "2d",
         );
 
         const accessToken = await this.jwtService.sign(
-          { purpose: "ACCESS_TOKEN", scope: crypto.randomUUID(), sub: rest.id },
+          { purpose: "ACCESS_TOKEN", scope: crypto.randomUUID(), sub: restUsers.id },
           "15m",
         );
 
@@ -127,9 +125,9 @@ export class AuthService {
           token: accessToken,
           usersData: {
             email: this.mask.email(email),
-            ...rest,
+            ...restUsers,
           },
-          businessData: hasBusiness,
+          businessData: businesses,
         } as tokensWithUserAndBusiness;
         return result;
       },
@@ -227,7 +225,7 @@ export class AuthService {
         const token = await this.jwtService.sign(
           {
             purpose: "FORGOT_PASSWORD",
-            sub: result.id,
+            sub: result.users.id,
           },
           "15m",
         );

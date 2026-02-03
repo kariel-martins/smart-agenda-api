@@ -49,7 +49,7 @@ export class AuthRepository {
             })
             .returning();
 
-          return { userData: user, businessData: business, tokenRefresh };
+          return { users: user, businesses: business, tokenRefresh };
         });
       },
       "Erro ao executar create",
@@ -73,17 +73,18 @@ export class AuthRepository {
       "auth/auth.repository/createToken",
     );
   }
-  public getByEmail(email: string): Promise<User> {
+
+  public getByEmail(email: string): Promise<UserAndBusiness> {
     return this.execute.repository(
       async () => {
         const result = await db
           .select()
           .from(users)
-          .where(eq(users.email, email));
+          .where(eq(users.email, email)).innerJoin(businesses, eq(businesses.id, users.business_id));
 
         return result[0];
       },
-      "Erro ao executar getByEmail",
+      "Usuário não encontrado",
       "auth/auth.repository/getByEmail",
     );
   }

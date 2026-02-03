@@ -14,8 +14,8 @@ export type Business = InferSelectModel<typeof businesses>
 export type InsertBusiness = InferInsertModel<typeof businesses>
 
 export type UserAndBusiness = {
-    userData: User,
-    businessData: Business
+    users: User,
+    businesses: Business
 }
 
 export type CreateUserWithBusiness = {

@@ -48,3 +48,4 @@ export const resetPasswordValidation = validation((getSchemas) => ({
 }));
 
 export type resetPasswordData = z.infer<typeof resetPasswordSchema>;
+

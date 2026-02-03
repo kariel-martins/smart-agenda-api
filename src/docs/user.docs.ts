@@ -57,7 +57,7 @@
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/SignUpInput'
+ *             $ref: '#/components/schemas/RegisterUsersInput'
  *     responses:
  *       201:
  *         description: Conta criada com sucesso

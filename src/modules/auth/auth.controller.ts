@@ -1,6 +1,5 @@
 import { RequestHandler } from "express";
 import { makeAuthService } from "./auth.factory";
-import { AppError } from "../../core/errors/AppError";
 
 export const createUser: RequestHandler = async (req, res, next) => {
   try {
@@ -42,7 +41,7 @@ export const createUser: RequestHandler = async (req, res, next) => {
 };
 
 
-export const login: RequestHandler = async (req, res) => {
+export const login: RequestHandler = async (req, res, next) => {
   try {
     const service = makeAuthService();
     const result = await service.login(req.body);
@@ -74,19 +73,12 @@ export const login: RequestHandler = async (req, res) => {
       .status(200)
       .json({ usersData: result.usersData, businessData: result.businessData });
   } catch (error) {
-    if (error instanceof AppError) {
-      return res
-        .status(error.statusCode)
-        .json({ errors: { default: error.message } });
-    }
-    res.status(500).json({
-      message: "Erro ao processar login",
-      context: "auth/auth.controller.ts/login",
-    });
+    if (res.headersSent) return
+    return next(error);
   }
 };
 
-export const refresh: RequestHandler = async (req, res) => {
+export const refresh: RequestHandler = async (req, res, next) => {
   try {
     const service = makeAuthService();
     const refresh_token = req.cookies.refreshToken;
@@ -110,20 +102,13 @@ export const refresh: RequestHandler = async (req, res) => {
     });
 
     return res.status(200).json({ message: "Validação bem sucedida!" });
-  } catch (error) {
-    if (error instanceof AppError) {
-      return res
-        .status(error.statusCode)
-        .json({ errors: { default: error.message } });
-    }
-    res.status(500).json({
-      message: "Erro ao processar refresh",
-      context: "auth/auth.controller.ts/refresh",
-    });
+  }catch (error) {
+    if (res.headersSent) return
+    return next(error);
   }
 };
 
-export const forgotPassword: RequestHandler = async (req, res) => {
+export const forgotPassword: RequestHandler = async (req, res, next) => {
   try {
     const service = makeAuthService();
     const { email } = req.body;
@@ -137,20 +122,13 @@ export const forgotPassword: RequestHandler = async (req, res) => {
       path: "/",
     });
 
-    return res.status(200).json(result.message);
+    return res.status(200).json({message: result.message});
   } catch (error) {
-    if (error instanceof AppError) {
-      return res
-        .status(error.statusCode)
-        .json({ errors: { default: error.message } });
-    }
-    res.status(500).json({
-      message: "Erro ao processar forgoutPassword",
-      context: "auth/auth.controller.ts/forgoutPassword",
-    });
+    if (res.headersSent) return
+    return next(error);
   }
 };
-export const resetPassword: RequestHandler = async (req, res) => {
+export const resetPassword: RequestHandler = async (req, res, next) => {
   try {
     const service = makeAuthService();
     const token = req.cookies.forgotPassword;
@@ -159,19 +137,12 @@ export const resetPassword: RequestHandler = async (req, res) => {
 
     return res.status(200).json(result);
   } catch (error) {
-    if (error instanceof AppError) {
-      return res
-        .status(error.statusCode)
-        .json({ errors: { default: error.message } });
-    }
-    res.status(500).json({
-      message: "Erro ao processar resetPassword",
-      context: "auth/auth.controller.ts/resetPassword",
-    });
+    if (res.headersSent) return
+    return next(error);
   }
 };
 
-export const logout: RequestHandler = (req, res) => {
+export const logout: RequestHandler = (_req, res, next) => {
   try {
     res.clearCookie("accessToken", {
       httpOnly: true,
@@ -191,10 +162,7 @@ export const logout: RequestHandler = (req, res) => {
 
     return res.status(200).json({ message: "Logout realizado com sucesso" });
   } catch (error) {
-    console.error("Erro ao remover autenticação:", error);
-    return res.status(500).json({
-      message: "Erro ao processar logout",
-      context: "auth/auth.controller.ts/logout",
-    });
+    if (res.headersSent) return
+    return next(error);
   }
 };
