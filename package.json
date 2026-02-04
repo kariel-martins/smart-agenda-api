@@ -25,6 +25,7 @@
     "db": "cross-env NODE_ENV=development npx drizzle-kit"
   },
   "dependencies": {
+    "@asteasolutions/zod-to-openapi": "^7.3.4",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -37,8 +38,7 @@
     "swagger-jsdoc": "^6.2.8",
     "swagger-themes": "^1.4.3",
     "swagger-ui-express": "^5.0.1",
-    "zod": "^4.3.6",
-    "zod-to-json-schema": "^3.25.1"
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.5",
