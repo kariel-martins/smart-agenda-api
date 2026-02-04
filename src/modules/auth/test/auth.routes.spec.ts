@@ -1,11 +1,8 @@
 import request from "supertest";
 import { app } from "../../../app";
-import { cookies, saveCookies } from "../../../config/test";
+import { getCookies, saveCookies } from "../../../config/test";
 
 describe("AUTH ROUTES", () => {
-
-  const extractCookies = (res: any) =>
-    res.headers["set-cookie"].map((c: string) => c.split(";")[0]).join("; ");
 
   describe("POST /auth/register", () => {
     it("Deve verifcar se as senha coincidem", async () => {
@@ -98,7 +95,7 @@ describe("AUTH ROUTES", () => {
     it("Deve retornar 200 e setar cookies", async () => {
       const response = await request(app)
         .post("/api/v1/auth/refresh")
-        .set("Cookie", cookies);
+        .set("Cookie", getCookies());
 
       expect(response.status).toBe(200);
 
@@ -149,7 +146,7 @@ describe("AUTH ROUTES", () => {
     it("Deve atualizar a senha!", async () => {
       const response = await request(app)
         .post("/api/v1/auth/reset-password")
-        .set("Cookie", cookies)
+        .set("Cookie", getCookies())
         .send({
           password: "Kariel@18",
           confirmPassword: "Kariel@18",
@@ -164,7 +161,7 @@ describe("AUTH ROUTES", () => {
     it("Deve verificar se as senha coincidem!", async () => {
       const response = await request(app)
         .post("/api/v1/auth/reset-password")
-        .set("Cookie", cookies)
+        .set("Cookie", getCookies())
         .send({
           password: "Kariel@20",
           confirmPassword: "Kariel@18",
@@ -182,7 +179,7 @@ describe("AUTH ROUTES", () => {
     it("Deve remove os tokens de acesso e refresh!", async () => {
       const response = await request(app)
         .post("/api/v1/auth/logout")
-        .set("Cookie", cookies);
+        .set("Cookie", getCookies());
 
       const newCookies = response.headers["set-cookie"];
       const cookiesStr = Array.isArray(newCookies)

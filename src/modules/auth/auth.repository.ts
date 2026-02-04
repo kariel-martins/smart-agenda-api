@@ -117,7 +117,7 @@ export class AuthRepository {
               eq(refresh_tokens.revoked, false),
               gt(refresh_tokens.expires_at, new Date()),
             ),
-          );
+          )
         return result;
       },
       "Erro ao executar getTokenRefresh",

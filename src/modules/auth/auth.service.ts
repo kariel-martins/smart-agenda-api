@@ -56,7 +56,7 @@ export class AuthService {
         const accessToken = await this.jwtService.sign(
           {
             purpose: "ACCESS_TOKEN",
-            scope: crypto.randomUUID(),
+            scope: businessData.id,
             sub: userData.id,
           },
           "15m",
@@ -116,7 +116,7 @@ export class AuthService {
         );
 
         const accessToken = await this.jwtService.sign(
-          { purpose: "ACCESS_TOKEN", scope: crypto.randomUUID(), sub: restUsers.id },
+          { purpose: "ACCESS_TOKEN", scope: businesses.id, sub: restUsers.id },
           "15m",
         );
 

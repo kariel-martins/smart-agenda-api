@@ -44,17 +44,18 @@ describe("AuthService", () => {
   );
 
   const mockUserAndBusiness = () => ({
-    users: {
-      id: "1",
-      email: "teste@email.com",
-      password_hash: "hashFake",
-      name: "João",
-    },
-    businesses: {
-      id: "b1",
-      name: "Shop",
-    },
-  });
+  users: {
+    id: "1",
+    email: "teste@email.com",
+    password_hash: "hashFake",
+    name: "João"
+  },
+  businesses: {
+    id: "b1",
+    name: "Shop"
+  }
+});
+
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -67,6 +68,7 @@ describe("AuthService", () => {
 
     repoMock.getUserNotExists = jest.fn().mockResolvedValue(null);
     repoMock.getByEmail = jest.fn().mockResolvedValue(mockUserAndBusiness());
+
   });
 
   describe("REGISTER", () => {
@@ -175,32 +177,35 @@ describe("AuthService", () => {
   });
 
   describe("FORGOT PASSWORD", () => {
-    it("deve gerar token de recuperação de senha", async () => {
-      repoMock.getByEmail = jest.fn().mockResolvedValue({
-        users: {
-          id: "1",
-          email: "teste@email.com",
-        },
-      });
 
-      jwtServiceMock.sign = jest.fn().mockReturnValue("forgotTokenFake");
+  it("deve gerar token de recuperação de senha", async () => {
 
-      const result = await service.forgotPassword("teste@email.com");
+    repoMock.getByEmail = jest.fn().mockResolvedValue({
+      users: {
+        id: "1",
+        email: "teste@email.com"
+      }
+    });
 
-      expect(repoMock.getByEmail).toHaveBeenCalledWith("teste@email.com");
+    jwtServiceMock.sign = jest.fn().mockReturnValue("forgotTokenFake");
 
-      expect(jwtServiceMock.sign).toHaveBeenCalledWith(
-        {
-          purpose: "FORGOT_PASSWORD",
-          sub: "1",
-        },
-        "15m",
-      );
+    const result = await service.forgotPassword("teste@email.com");
 
-      expect(result).toEqual({
-        message: "Email enviar com sucesso!",
-        token: "forgotTokenFake",
-      });
+    expect(repoMock.getByEmail).toHaveBeenCalledWith("teste@email.com");
+
+    expect(jwtServiceMock.sign).toHaveBeenCalledWith(
+      {
+        purpose: "FORGOT_PASSWORD",
+        sub: "1"
+      },
+      "15m"
+    );
+
+    expect(result).toEqual({
+      message: "Email enviar com sucesso!",
+      token: "forgotTokenFake"
     });
   });
+
+});
 });

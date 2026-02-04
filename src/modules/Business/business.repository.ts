@@ -20,7 +20,7 @@ export class BusinessRepository {
 
         return result[0];
       },
-      "Erro ao executar getById",
+      "Não foi possível buscar o negócio",
       "Business/business.repository.ts/getById",
     );
   }

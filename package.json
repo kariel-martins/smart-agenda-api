@@ -16,7 +16,7 @@
   "main": "index.js",
   "scripts": {
     "start:dev": "cross-env NODE_ENV=test  nodemon src/server.ts",
-    "test:e2e": "cross-env NODE_ENV=test jest --runInBand --watchAll",
+    "test:e2e": "cross-env NODE_ENV=test jest --runInBand --watchAll --silent",
     "docker-db:dev": "docker compose up -d postgres",
     "docker-db:test": "docker compose up -d postgres-test",
     "studio:test": "cross-env NODE_ENV=test drizzle-kit studio",
