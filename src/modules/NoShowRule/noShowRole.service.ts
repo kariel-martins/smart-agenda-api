@@ -59,10 +59,11 @@ export class NoShowRoleService {
     );
   }
 
-  public delete(noShowRule_id: number): Promise<void> {
+  public delete(noShowRule_id: number): Promise<NoShowRole> {
     return this.execute.service(
       async () => {
-        await this.repo.delete(noShowRule_id);
+        const result = await this.repo.delete(noShowRule_id);
+        return result
       },
       "Erro ao executar delete",
       "NoShowRole/noShowRole.service.ts/delete",

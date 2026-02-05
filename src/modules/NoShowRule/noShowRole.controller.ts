@@ -4,78 +4,50 @@ import { makeNoShowRoleService } from "./noShowRole.factory";
 
 const NoShowRole = makeNoShowRoleService();
 
-export const create: RequestHandler = async (req, res) => {
+export const create: RequestHandler = async (req, res, next) => {
   try {
      const businessId = req.cookies.businessId;
     const result = await NoShowRole.create(businessId, req.body);
 
     return res.status(200).json(result);
   } catch (error) {
-    if (error instanceof AppError) {
-      return res
-        .status(error.statusCode)
-        .json({ errors: { default: error.message } });
-    }
-    res.status(500).json({
-      message: "Erro ao processar create",
-      context: "NoShowRole/noShowRole.controller.ts/create",
-    });
+    if (res.headersSent) return
+    return next(error);
   }
 };
 
-export const getById: RequestHandler = async (req, res) => {
+export const getById: RequestHandler = async (req, res, next) => {
   try {
     const businessId = req.cookies.businessId;
     const result = await NoShowRole.getById(businessId);
 
     return res.status(200).json(result);
   } catch (error) {
-    if (error instanceof AppError) {
-      return res
-        .status(error.statusCode)
-        .json({ errors: { default: error.message } });
-    }
-    res.status(500).json({
-      message: "Erro ao processar getById",
-      context: "NoShowRole/noShowRole.controller.ts/getById",
-    });
+    if (res.headersSent) return
+    return next(error);
   }
 };
 
-export const update: RequestHandler = async (req, res) => {
+export const update: RequestHandler = async (req, res, next) => {
   try {
     const { noShowRule_id } = req.params;
     const result = await NoShowRole.update(Number(noShowRule_id), req.body);
 
     return res.status(200).json(result);
   } catch (error) {
-    if (error instanceof AppError) {
-      return res
-        .status(error.statusCode)
-        .json({ errors: { default: error.message } });
-    }
-    res.status(500).json({
-      message: "Erro ao processar update",
-      context: "NoShowRole/noShowRole.controller.ts/update",
-    });
+    if (res.headersSent) return
+    return next(error);
   }
 };
 
-export const remove: RequestHandler = async (req, res) => {
+export const remove: RequestHandler = async (req, res, next) => {
   try {
     const { noShowRule_id } = req.params;
     await NoShowRole.delete(Number(noShowRule_id));
 
-    return res.status(204);
+    return res.status(204).json({});
   } catch (error) {
-    if (error instanceof AppError) {
-      return res
-        .status(error.statusCode)
-        .json({ errors: { default: error.message } });
-    }
-    res.status(500).json({
-      message: "Erro ao processar remove",
-      context: "NoShowRole/noShowRole.controller.ts/remove",
-    });
+    if (res.headersSent) return
+    return next(error);
   }
 };

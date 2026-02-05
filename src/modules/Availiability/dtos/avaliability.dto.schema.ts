@@ -9,29 +9,29 @@ const availiablilitySchema = z.object({
     professional_id: schemaVars.number
 })
 
-const availiablilityByIdSchema = z.object({
+const availiabilityByProfessionalIdSchema = z.object({
     professional_id: schemaVars.number
 })
 
-const availiablilityIdSchema = z.object({
+const availiabilityIdSchema = z.object({
     availability_id: schemaVars.number
 })
 
 export const availiablilityCreateValidate = validation((getSchemas) => ({
-    body: getSchemas(availiablilitySchema)
+    body: getSchemas(availiabilityByProfessionalIdSchema)
 })) 
 
 export type availiablilityData = z.infer<typeof availiablilitySchema>
 
 export const availiablilityValidate = validation((getSchemas) => ({
-    params: getSchemas(availiablilityByIdSchema)
+    params: getSchemas(availiabilityIdSchema)
 })) 
 
 export const availiablilityUpdateValidate = validation((getSchemas) => ({
     body: getSchemas(availiablilitySchema),
-    params: getSchemas(availiablilityIdSchema)
+    params: getSchemas(availiabilityIdSchema)
 })) 
 
 export const availiablilityDeleteValidate = validation((getSchemas) => ({
-    params: getSchemas(availiablilityByIdSchema)
+    params: getSchemas(availiabilityIdSchema)
 })) 

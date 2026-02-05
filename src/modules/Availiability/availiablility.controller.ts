@@ -4,25 +4,18 @@ import { makeAvailiablilityService } from "./availiablility.factory";
 
 const Availiablility = makeAvailiablilityService()
 
-export const create: RequestHandler = async (req, res) => {
+export const create: RequestHandler = async (req, res, next) => {
   try {
     const result = await Availiablility.create(req.body);
 
     return res.status(200).json(result);
   } catch (error) {
-    if (error instanceof AppError) {
-      return res
-        .status(error.statusCode)
-        .json({ errors: { default: error.message } });
-    }
-    res.status(500).json({
-      message: "Erro ao processar create",
-      context: "Availiablility/availiablility.controller.ts/create",
-    });
+    if (res.headersSent) return
+    return next(error);
   }
 };
 
-export const getById: RequestHandler = async (req, res) => {
+export const getById: RequestHandler = async (req, res, next) => {
   try {
     const { professional_id } = req.params
 
@@ -30,53 +23,32 @@ export const getById: RequestHandler = async (req, res) => {
 
     return res.status(200).json(result);
   } catch (error) {
-    if (error instanceof AppError) {
-      return res
-        .status(error.statusCode)
-        .json({ errors: { default: error.message } });
-    }
-    res.status(500).json({
-      message: "Erro ao processar getById",
-      context: "Availiablility/availiablility.controller.ts/getById",
-    });
+    if (res.headersSent) return
+    return next(error);
   }
 };
 
-export const update: RequestHandler = async (req, res) => {
+export const update: RequestHandler = async (req, res, next) => {
   try {
     const { availability_id } = req.params
     const result = await Availiablility.update(Number(availability_id), req.body);
 
     return res.status(200).json(result);
   } catch (error) {
-    if (error instanceof AppError) {
-      return res
-        .status(error.statusCode)
-        .json({ errors: { default: error.message } });
-    }
-    res.status(500).json({
-      message: "Erro ao processar update",
-      context: "Availiablility/availiablility.controller.ts/update",
-    });
+    if (res.headersSent) return
+    return next(error);
   }
 };
 
 
-export const remove: RequestHandler = async (req, res) => {
+export const remove: RequestHandler = async (req, res, next) => {
   try {
     const { availability_id } = req.params
     const result = await Availiablility.delete(Number(availability_id));
 
     return res.status(204).json(result);
   } catch (error) {
-    if (error instanceof AppError) {
-      return res
-        .status(error.statusCode)
-        .json({ errors: { default: error.message } });
-    }
-    res.status(500).json({
-      message: "Erro ao processar remove",
-      context: "Availiablility/availiablility.controller.ts/remove",
-    });
+    if (res.headersSent) return
+    return next(error);
   }
 };

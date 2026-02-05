@@ -49,18 +49,15 @@ export class NoShowRoleRepository {
     );
   }
 
-  public delete(noShowRole_id: number) {
+  public delete(noShowRole_id: number): Promise<NoShowRole> {
     return this.execute.repository(
       async () => {
-        const result = await db
-          .delete(no_show_rules)
-          .where(eq(no_show_rules.id, noShowRole_id))
-          .returning();
+        const result = await db.delete(no_show_rules).where(eq(no_show_rules.id, noShowRole_id)).returning();
 
         return result[0];
       },
       "Erro ao executar delete",
-      "NoShowRole/noShowRole.repository.ts/create",
+      "NoShowRole/noShowRole.repository.ts/delete",
     );
   }
 }

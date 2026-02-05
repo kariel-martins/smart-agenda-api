@@ -4,63 +4,42 @@ import { makeAppointmentService } from "./appointment.factory";
 
 const Appointment = makeAppointmentService()
 
-export const create: RequestHandler = async (req, res) => {
+export const create: RequestHandler = async (req, res, next) => {
   try {
     const businessId = req.cookies.businessId
     const result = await Appointment.create(businessId, req.body);
 
     return res.status(200).json(result);
   } catch (error) {
-    if (error instanceof AppError) {
-      return res
-        .status(error.statusCode)
-        .json({ errors: { default: error.message } });
-    }
-    res.status(500).json({
-      message: "Erro ao processar create",
-      context: "Appointment/appointment.controller.ts/create",
-    });
+    if (res.headersSent) return
+    return next(error);
   }
 };
 
-export const getByDate: RequestHandler = async (req, res) => {
+export const getByDate: RequestHandler = async (req, res, next) => {
   try {
     const { date } = req.query as {date: string}
     const result = await Appointment.getByDate(date);
 
     return res.status(200).json(result);
-  } catch (error) {
-    if (error instanceof AppError) {
-      return res
-        .status(error.statusCode)
-        .json({ errors: { default: error.message } });
-    }
-    res.status(500).json({
-      message: "Erro ao processar getById",
-      context: "Appointment/appointment.controller.ts/getById",
-    });
+  }  catch (error) {
+    if (res.headersSent) return
+    return next(error);
   }
 };
 
-export const complete: RequestHandler = async (req, res) => {
+export const complete: RequestHandler = async (req, res, next) => {
   try {
      const { appointments_id } = req.params
     const result = await Appointment.update(Number(appointments_id), {status: "completed"});
     return res.status(200).json(result);
   } catch (error) {
-    if (error instanceof AppError) {
-      return res
-        .status(error.statusCode)
-        .json({ errors: { default: error.message } });
-    }
-    res.status(500).json({
-      message: "Erro ao processar complete",
-      context: "Appointment/appointment.controller.ts/complete",
-    });
+    if (res.headersSent) return
+    return next(error);
   }
 };
 
-export const cancel: RequestHandler = async (req, res) => {
+export const cancel: RequestHandler = async (req, res, next) => {
   try {
     const { appointments_id } = req.params
     const { cancel_reason } = req.body
@@ -68,52 +47,31 @@ export const cancel: RequestHandler = async (req, res) => {
 
     return res.status(200).json(result);
   } catch (error) {
-    if (error instanceof AppError) {
-      return res
-        .status(error.statusCode)
-        .json({ errors: { default: error.message } });
-    }
-    res.status(500).json({
-      message: "Erro ao processar cancel",
-      context: "Appointment/appointment.controller.ts/cancel",
-    });
+    if (res.headersSent) return
+    return next(error);
   }
 };
 
-export const confirm: RequestHandler = async (req, res) => {
+export const confirm: RequestHandler = async (req, res, next) => {
   try {
      const { appointments_id } = req.params
     const result = await Appointment.update(Number(appointments_id), {status: "confirmed", confirm_at: new Date()});
 
     return res.status(200).json(result);
   } catch (error) {
-    if (error instanceof AppError) {
-      return res
-        .status(error.statusCode)
-        .json({ errors: { default: error.message } });
-    }
-    res.status(500).json({
-      message: "Erro ao processar confirm",
-      context: "Appointment/appointment.controller.ts/confirm",
-    });
+    if (res.headersSent) return
+    return next(error);
   }
 };
 
-export const noShow: RequestHandler = async (req, res) => {
+export const noShow: RequestHandler = async (req, res, next) => {
   try {
      const { appointments_id } = req.params
     const result = await Appointment.update(Number(appointments_id), {status: "no_show", cancel_reason: "contratante aunsente"});
 
     return res.status(200).json(result);
   } catch (error) {
-    if (error instanceof AppError) {
-      return res
-        .status(error.statusCode)
-        .json({ errors: { default: error.message } });
-    }
-    res.status(500).json({
-      message: "Erro ao processar confirm",
-      context: "Appointment/appointment.controller.ts/confirm",
-    });
+    if (res.headersSent) return
+    return next(error);
   }
 };
