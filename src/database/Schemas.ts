@@ -30,7 +30,7 @@ export const users = pgTable("users", {
   name: text().notNull(),
   email: text().unique().notNull(),
   password_hash: text().notNull(),
-  user_role: userRoleEnum("user_role"),
+  user_role: userRoleEnum("user_role").default("staff").notNull(),
   business_id: uuid("business_id")
     .references(() => businesses.id, {
       onDelete: "cascade",
@@ -128,23 +128,20 @@ export const appointment = pgTable("appointment", {
   businesses_id: uuid("businesses_id")
     .references(() => businesses.id, {
       onDelete: "cascade",
-    })
-    .notNull(),
+    }).notNull(),
+
   professional_id: serial("professional_id")
     .references(() => professionals.id, {
       onDelete: "cascade",
-    })
-    .notNull(),
+    }).notNull(),
   client_id: uuid("client_id")
     .references(() => clients.id, {
       onDelete: "cascade",
-    })
-    .notNull(),
+    }).notNull(),
   service_id: serial("service_id")
     .references(() => services.id, {
       onDelete: "cascade",
-    })
-    .notNull(),
+    }).notNull(),
   date: text().notNull(),
   start_time: text().notNull(),
   end_time: text().notNull(),
@@ -160,7 +157,7 @@ export const notification_logs = pgTable("notification_logs", {
   id: serial("id").primaryKey(),
   appointment_id: serial("appointment_id").references(() => appointment.id, {
     onDelete: "cascade",
-  }),
+  }).notNull(),
   type: text().notNull(),
   send_at: timestamp("send_at", { withTimezone: true })
     .notNull()
