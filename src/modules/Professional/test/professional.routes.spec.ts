@@ -1,33 +1,43 @@
 import request from "supertest";
 import { db } from "../../../database/Client";
-import { businesses, professionals } from "../../../database/Schemas";
+import { professionals } from "../../../database/Schemas";
 import { app } from "../../../app";
+import { getCookies, saveCookies } from "../../../config/test";
 
 describe("Professional E2E Routes", () => {
-  let testBusinessId: string;
-  let createdProId: number;
-
-  beforeAll(async () => {
-    
-    const [biz] = await db.insert(businesses).values({
-      name: "Clínica Geral",
-      email: "clinica@teste.com",
-      phone: "1199999999",
-      active: true
-    }).returning();
-
-    testBusinessId = biz.id;
-  });
-
+   let testBusinessId: string;
+    let createdProId: number;
+  
+    it("deve criar uma conta", async () => {
+      const response = await request(app).post("/api/v1/auth/register").send({
+        name: "João",
+        nameBusiness: "lojaTest",
+        phone: "+55 (99) 000009999",
+        email: "joao@email.com",
+        password: "DevAdmin@26",
+        confirmPassword: "DevAdmin@26",
+      });
+  
+      saveCookies(response);
+      
+      expect(response.status).toBe(201);
+      
+      expect(response.body).toHaveProperty("usersData");
+      expect(response.body).toHaveProperty("businessData");
+      
+      expect(response.headers["set-cookie"]).toBeDefined();
+      testBusinessId = response.body.usersData.business_id
+    });
+  
   describe("POST /", () => {
     it("deve criar um profissional e retornar 201", async () => {
       const response = await request(app)
         .post("/api/v1/professionals")
-        .set("Cookie", [`businessId=${testBusinessId}`])
+        .set("Cookie", getCookies())
         .send({
           name: "Lucas Medeiros",
           specialty: "Fisioterapia",
-          role: "MANAGER"
+          role: "MANAGER",
         });
 
       expect(response.status).toBe(201);
@@ -38,7 +48,7 @@ describe("Professional E2E Routes", () => {
     it("deve retornar 400 por erro de validação (zod)", async () => {
       const response = await request(app)
         .post("/api/v1/professionals")
-        .set("Cookie", [`businessId=${testBusinessId}`])
+        .set("Cookie", getCookies())
         .send({ name: "Incompleto" });
 
       expect(response.status).toBe(400);
@@ -49,7 +59,7 @@ describe("Professional E2E Routes", () => {
     it("deve listar profissionais do negócio via cookie", async () => {
       const response = await request(app)
         .get("/api/v1/professionals")
-        .set("Cookie", [`businessId=${testBusinessId}`]);
+        .set("Cookie", getCookies());
 
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body)).toBe(true);
@@ -64,7 +74,7 @@ describe("Professional E2E Routes", () => {
         .send({
           name: "Lucas M. Silva",
           specialty: "Osteopatia",
-          role: "ADMIN"
+          role: "ADMIN",
         });
 
       expect(response.status).toBe(200);
@@ -74,8 +84,9 @@ describe("Professional E2E Routes", () => {
 
   describe("DELETE /:professional_id", () => {
     it("deve remover o profissional e retornar 204", async () => {
-      const response = await request(app)
-        .delete(`/api/v1/professionals/${createdProId}`);
+      const response = await request(app).delete(
+        `/api/v1/professionals/${createdProId}`,
+      );
 
       expect(response.status).toBe(204);
 

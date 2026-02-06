@@ -6,21 +6,32 @@ import {
   UpdateNoShowRole,
 } from "./dtos/noShowRole.dto.type";
 import { AppError } from "../../core/errors/AppError";
+import { IJWTService } from "../../share/services/interfaces/IJWTService";
 
 export class NoShowRoleService {
   constructor(
     private readonly execute: ExecuteHandler,
     private readonly repo: NoShowRoleRepository,
+    private readonly jwt: IJWTService,
   ) {}
 
-  public create(businessId: string, data: InsertNoShowRole): Promise<any> {
+  public create(token: string, data: InsertNoShowRole): Promise<any> {
     return this.execute.service(
       async () => {
-        if (!businessId) throw new AppError("businessId inválido ou ausente!");
+        const jwtToken = await this.jwt.verify(token)
+
+         if (
+          !jwtToken ||
+          !jwtToken.sub ||
+          !jwtToken.scope ||
+          jwtToken.purpose !== "ACCESS_TOKEN"
+        ) {
+          throw new AppError("Token ausente ou inválido!", 401);
+        }
 
         const result = await this.repo.create({
           ...data,
-          businesses_id: businessId,
+          businesses_id: jwtToken.scope,
         });
 
         return result;
@@ -30,12 +41,21 @@ export class NoShowRoleService {
     );
   }
 
-  public getById(businessId: string): Promise<NoShowRole[]> {
+  public getById(token: string): Promise<NoShowRole[]> {
     return this.execute.service(
       async () => {
-        if (!businessId) throw new AppError("businessId inválido ou ausente!");
+        const jwtToken = await this.jwt.verify(token)
 
-        const result = await this.repo.getById(businessId);
+         if (
+          !jwtToken ||
+          !jwtToken.sub ||
+          !jwtToken.scope ||
+          jwtToken.purpose !== "ACCESS_TOKEN"
+        ) {
+          throw new AppError("Token ausente ou inválido!", 401);
+        }
+
+        const result = await this.repo.getById(jwtToken.scope);
 
         return result;
       },

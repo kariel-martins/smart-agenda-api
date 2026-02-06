@@ -1,5 +1,4 @@
 import { RequestHandler } from "express";
-import { AppError } from "../../core/errors/AppError";
 import { makeAvailiablilityService } from "./availiablility.factory";
 
 const Availiablility = makeAvailiablilityService()

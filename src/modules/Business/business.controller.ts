@@ -1,13 +1,12 @@
 import { RequestHandler } from "express";
-import { AppError } from "../../core/errors/AppError";
 import { makeBusinessService } from "./business.factory";
 
 const service = makeBusinessService();
 
 export const getById: RequestHandler = async (req, res, next) => {
   try {
-    const businessId = req.cookies.businessId;
-    const result = await service.getById(businessId);
+    const token = req.cookies.accessToken;
+    const result = await service.getById(token);
 
     return res.status(200).json(result);
   } catch (error) {
@@ -18,8 +17,8 @@ export const getById: RequestHandler = async (req, res, next) => {
 
 export const update: RequestHandler = async (req, res, next) => {
   try {
-    const businessId = req.cookies.businessId;
-    const result = await service.update(businessId, req.body);
+    const token = req.cookies.accessToken;
+    const result = await service.update(token, req.body);
 
     return res.status(200).json(result);
   } catch (error) {

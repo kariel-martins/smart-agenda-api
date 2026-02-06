@@ -4,6 +4,7 @@ import { ExecuteHandler } from "../../core/handlers/executeHandler";
 import { db } from "../../database/Client";
 import { businesses, refresh_tokens, users } from "../../database/Schemas";
 import {
+  Business,
   CreateUserWithBusiness,
   InsertTokenRefresh,
   tokenRefresh,
@@ -74,13 +75,29 @@ export class AuthRepository {
     );
   }
 
+  public getById(user_id: string): Promise<User> {
+    return this.execute.repository(
+      async () => {
+        const result = await db
+          .select()
+          .from(users)
+          .where(eq(users.id, user_id))
+
+        return result[0];
+      },
+      "Usuário não encontrado",
+      "auth/auth.repository/getByEmail",
+    );
+  }
+
   public getByEmail(email: string): Promise<UserAndBusiness> {
     return this.execute.repository(
       async () => {
         const result = await db
           .select()
           .from(users)
-          .where(eq(users.email, email)).innerJoin(businesses, eq(businesses.id, users.business_id));
+          .where(eq(users.email, email))
+          .innerJoin(businesses, eq(businesses.id, users.business_id));
 
         return result[0];
       },
@@ -117,7 +134,7 @@ export class AuthRepository {
               eq(refresh_tokens.revoked, false),
               gt(refresh_tokens.expires_at, new Date()),
             ),
-          )
+          );
         return result;
       },
       "Erro ao executar getTokenRefresh",

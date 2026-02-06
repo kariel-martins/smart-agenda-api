@@ -3,28 +3,37 @@ import request from "supertest";
 import { db } from "../../../database/Client";
 import { businesses, services } from "../../../database/Schemas";
 import { app } from "../../../app";
+import { getCookies, saveCookies } from "../../../config/test";
 
 describe("Service E2E Routes", () => {
   let testBusinessId: string;
   let createdServiceId: number;
 
-  beforeAll(async () => {
-
-    const [biz] = await db.insert(businesses).values({
-      name: "Barbearia do Teste",
-      email: "barber@teste.com",
-      phone: "1199999999",
-      active: true
-    }).returning();
-
-    testBusinessId = biz.id;
-  });
+  it("deve criar uma conta", async () => {
+      const response = await request(app).post("/api/v1/auth/register").send({
+        name: "Maria",
+        nameBusiness: "lojaTest@15",
+        phone: "+55 (99) 000009999",
+        email: "mariaTest@email.com",
+        password: "DevAdmin@26",
+        confirmPassword: "DevAdmin@26",
+      });
+  
+      saveCookies(response);
+      expect(response.status).toBe(201);
+  
+      expect(response.body).toHaveProperty("usersData");
+      expect(response.body).toHaveProperty("businessData");
+  
+      expect(response.headers["set-cookie"]).toBeDefined();
+      testBusinessId = response.body.usersData.business_id;
+    });
 
   describe("POST /services", () => {
     it("deve criar um serviço e retornar 201", async () => {
       const response = await request(app)
         .post("/api/v1/services")
-        .set("Cookie", [`businessId=${testBusinessId}`])
+        .set("Cookie", getCookies())
         .send({
           name: "Barba e Cabelo",
           duration_minutes: "60",
@@ -41,7 +50,7 @@ describe("Service E2E Routes", () => {
     it("deve listar serviços filtrados por businessId via cookie", async () => {
       const response = await request(app)
         .get("/api/v1/services")
-        .set("Cookie", [`businessId=${testBusinessId}`]);
+        .set("Cookie", getCookies());
 
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body)).toBe(true);

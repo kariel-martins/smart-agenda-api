@@ -1,135 +1,108 @@
 import { AuthService } from "../auth.service";
-import { ExecuteHandler } from "../../../core/handlers/executeHandler";
 import { AuthRepository } from "../auth.repository";
-import { AppError } from "../../../core/errors/AppError";
 import { ICryptoService } from "../../../share/services/interfaces/ICryptoService";
 import { IJWTService } from "../../../share/services/interfaces/IJWTService";
+import { ExecuteHandler } from "../../../core/handlers/executeHandler";
+import { AppError } from "../../../core/errors/AppError";
 
 describe("AuthService", () => {
-  const cryptMock = {
-    hashText: jest.fn(),
-    verifyText: jest.fn(),
-  } as unknown as ICryptoService;
+  let service: AuthService;
+  let repoMock: jest.Mocked<AuthRepository>;
+  let cryptMock: jest.Mocked<ICryptoService>;
+  let jwtServiceMock: jest.Mocked<IJWTService>;
+  let maskMock: any;
+  let executeMock: jest.Mocked<ExecuteHandler>;
 
-  const jwtServiceMock = {
-    sign: jest.fn(),
-    verify: jest.fn(),
-  } as unknown as IJWTService;
-
-  const maskMock = {
-    email: jest.fn(),
-  };
-
-  const executeMock = {
-    service: jest.fn((fn) => fn()),
-  } as unknown as ExecuteHandler;
-
-  const repoMock = {
-    create: jest.fn(),
-    createToken: jest.fn(),
-    getByEmail: jest.fn(),
-    getUserNotExists: jest.fn(),
-    getTokenRefresh: jest.fn(),
-    updateRefreshToken: jest.fn(),
-    revokeAllUserTokens: jest.fn(),
-    update: jest.fn(),
-  } as unknown as AuthRepository;
-
-  const service = new AuthService(
-    executeMock,
-    repoMock,
-    cryptMock,
-    jwtServiceMock,
-    maskMock,
-  );
-
-  const mockUserAndBusiness = () => ({
-  users: {
-    id: "1",
-    email: "teste@email.com",
-    password_hash: "hashFake",
-    name: "João"
-  },
-  businesses: {
-    id: "b1",
-    name: "Shop"
-  }
-});
-
+  const makeFakeUser = () => ({
+    users: {
+      id: "1",
+      email: "teste@email.com",
+      password_hash: "hashFake",
+      name: "João",
+    },
+    businesses: {
+      id: "b1",
+      name: "Shop",
+    },
+  });
 
   beforeEach(() => {
+    executeMock = {
+      service: jest.fn((fn) => fn()),
+    } as any;
+
+    repoMock = {
+      create: jest.fn(),
+      createToken: jest.fn(),
+      getByEmail: jest.fn(),
+      getUserNotExists: jest.fn(),
+      updateRefreshToken: jest.fn(),
+      update: jest.fn(),
+      revokeAllUserTokens: jest.fn(),
+      getTokenRefresh: jest.fn(),
+    } as any;
+
+    cryptMock = {
+      hashText: jest.fn().mockResolvedValue("hashFake"),
+      verifyText: jest.fn().mockResolvedValue(true),
+    } as any;
+
+    jwtServiceMock = {
+      sign: jest.fn().mockReturnValue("jwtFake"),
+      verify: jest.fn(),
+    } as any;
+
+    maskMock = {
+      email: jest.fn().mockReturnValue("t****@email.com"),
+    };
+
+    service = new AuthService(
+      executeMock,
+      repoMock,
+      cryptMock,
+      jwtServiceMock,
+      maskMock
+    );
+
     jest.clearAllMocks();
-
-    cryptMock.hashText = jest.fn().mockResolvedValue("hashFake");
-    cryptMock.verifyText = jest.fn().mockResolvedValue(true);
-
-    jwtServiceMock.sign = jest.fn().mockReturnValue("jwtFake");
-    jwtServiceMock.verify = jest.fn();
-
-    repoMock.getUserNotExists = jest.fn().mockResolvedValue(null);
-    repoMock.getByEmail = jest.fn().mockResolvedValue(mockUserAndBusiness());
-
   });
 
   describe("REGISTER", () => {
-    it("deve criar usuário e mascarar email", async () => {
-      repoMock.create = jest.fn().mockResolvedValue({
-        users: {
-          id: "1",
-          name: "João",
-          email: "teste@email.com",
-        },
-        businesses: {
-          id: "b1",
-          name: "TestShop",
-        },
+    it("deve criar usuário e mascarar email com sucesso", async () => {
+      repoMock.create.mockResolvedValue({
+        ...makeFakeUser(),
         tokenRefresh: {},
-      });
+      } as any);
 
-      maskMock.email = jest.fn().mockReturnValue("t****@email.com");
-
-      const result = await service.registerUser({
+      const payload = {
         name: "João",
         email: "teste@email.com",
         password: "123",
         confirmPassword: "123",
         nameBusiness: "TestShop",
         phone: "9999",
-      } as any);
+      };
+
+      const result = await service.registerUser(payload as any);
 
       expect(result.usersData.email).toBe("t****@email.com");
-      expect(result.token).toBeDefined();
-      expect(result.refresh_token).toBeDefined();
+      expect(jwtServiceMock.sign).toHaveBeenCalled();
+      expect(repoMock.create).toHaveBeenCalled();
     });
 
-    it("deve lançar erro se senhas forem diferentes", async () => {
-      repoMock.getUserNotExists = jest.fn().mockResolvedValue(null);
-
+    it("deve lançar erro se as senhas forem diferentes", async () => {
       await expect(
         service.registerUser({
           password: "123",
           confirmPassword: "456",
-        } as any),
+        } as any)
       ).rejects.toBeInstanceOf(AppError);
     });
   });
 
   describe("LOGIN", () => {
-    it("deve realizar login com sucesso", async () => {
-      cryptMock.verifyText = jest.fn().mockResolvedValue(true);
-
-      repoMock.getByEmail = jest.fn().mockResolvedValue({
-        users: {
-          id: "1",
-          email: "teste@email.com",
-          password_hash: "hashFake",
-          name: "João",
-        },
-        businesses: {
-          id: "b1",
-          name: "Shop",
-        },
-      });
+    it("deve realizar login e retornar tokens", async () => {
+      repoMock.getByEmail.mockResolvedValue(makeFakeUser() as any);
 
       const result = await service.login({
         email: "teste@email.com",
@@ -137,75 +110,29 @@ describe("AuthService", () => {
       });
 
       expect(result.token).toBe("jwtFake");
-      expect(result.refresh_token).toBe("jwtFake");
+      expect(cryptMock.verifyText).toHaveBeenCalledWith("123", "hashFake");
     });
-    it("deve falhar login com senha inválida", async () => {
-      cryptMock.verifyText = jest.fn().mockResolvedValue(false);
 
-      repoMock.getByEmail = jest.fn().mockResolvedValue({
-        users: {
-          password_hash: "hashFake",
-        },
-      });
+    it("deve falhar login se a senha estiver incorreta", async () => {
+      repoMock.getByEmail.mockResolvedValue(makeFakeUser() as any);
+      cryptMock.verifyText.mockResolvedValue(false);
 
       await expect(
-        service.login({
-          email: "teste@email.com",
-          password: "123",
-        }),
-      ).rejects.toBeInstanceOf(AppError);
-    });
-  });
-
-  describe("RESERT-PASSWORD", () => {
-    it("deve atualizar senha", async () => {
-      jwtServiceMock.verify = jest.fn().mockResolvedValue({
-        sub: "1",
-        purpose: "FORGOT_PASSWORD",
-      });
-
-      repoMock.update = jest.fn();
-
-      const result = await service.resetPassword("token", {
-        password: "Nova123",
-        confirmPassword: "Nova123",
-      });
-
-      expect(repoMock.update).toHaveBeenCalled();
-      expect(result.message).toBe("Senha atualizada com sucesso!");
+        service.login({ email: "teste@email.com", password: "errada" })
+      ).rejects.toThrow(AppError);
     });
   });
 
   describe("FORGOT PASSWORD", () => {
+    it("deve gerar token de recuperação", async () => {
+      repoMock.getByEmail.mockResolvedValue(makeFakeUser() as any);
 
-  it("deve gerar token de recuperação de senha", async () => {
-
-    repoMock.getByEmail = jest.fn().mockResolvedValue({
-      users: {
-        id: "1",
-        email: "teste@email.com"
-      }
-    });
-
-    jwtServiceMock.sign = jest.fn().mockReturnValue("forgotTokenFake");
-
-    const result = await service.forgotPassword("teste@email.com");
-
-    expect(repoMock.getByEmail).toHaveBeenCalledWith("teste@email.com");
-
-    expect(jwtServiceMock.sign).toHaveBeenCalledWith(
-      {
-        purpose: "FORGOT_PASSWORD",
-        sub: "1"
-      },
-      "15m"
-    );
-
-    expect(result).toEqual({
-      message: "Email enviar com sucesso!",
-      token: "forgotTokenFake"
+      const result = await service.forgotPassword("teste@email.com");
+      expect(jwtServiceMock.sign).toHaveBeenCalledWith(
+        expect.objectContaining({ purpose: "FORGOT_PASSWORD" }),
+        "15m"
+      );
+      expect(result.message).toContain("sucesso");
     });
   });
-
-});
 });

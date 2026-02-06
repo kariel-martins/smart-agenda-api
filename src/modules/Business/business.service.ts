@@ -1,5 +1,6 @@
 import { AppError } from "../../core/errors/AppError";
 import { ExecuteHandler } from "../../core/handlers/executeHandler";
+import { IJWTService } from "../../share/services/interfaces/IJWTService";
 import { BusinessRepository } from "./business.repository";
 import { Business, UpdateBusiness } from "./dtos/business.dto.types";
 
@@ -7,14 +8,24 @@ export class BusinessService {
   constructor(
     private readonly execute: ExecuteHandler,
     private readonly repo: BusinessRepository,
+    private readonly jwt: IJWTService,
   ) {}
 
-  public getById(businessId: string): Promise<Business> {
+  public getById(token: string): Promise<Business> {
     return this.execute.service(
       async () => {
-        if (!businessId) throw new AppError("Error ao buscar business", 400);
+        const jwtToken = await this.jwt.verify(token)
 
-        const result = await this.repo.getById(businessId);
+         if (
+          !jwtToken ||
+          !jwtToken.sub ||
+          !jwtToken.scope ||
+          jwtToken.purpose !== "ACCESS_TOKEN"
+        ) {
+          throw new AppError("Token ausente ou inválido!", 401);
+        }
+
+        const result = await this.repo.getById(jwtToken.scope);
 
         return result;
       },
@@ -23,12 +34,21 @@ export class BusinessService {
     );
   }
 
-  public update(businessId: string, data: UpdateBusiness): Promise<Business> {
+  public update(token: string, data: UpdateBusiness): Promise<Business> {
     return this.execute.service(
       async () => {
-        if (!businessId) throw new AppError("Error ao buscar business", 400);
+        const jwtToken = await this.jwt.verify(token)
+
+         if (
+          !jwtToken ||
+          !jwtToken.sub ||
+          !jwtToken.scope ||
+          jwtToken.purpose !== "ACCESS_TOKEN"
+        ) {
+          throw new AppError("Token ausente ou inválido!", 401);
+        }
         
-        const result = await this.repo.update(businessId, data);
+        const result = await this.repo.update(jwtToken.scope, data);
 
         return result;
       },

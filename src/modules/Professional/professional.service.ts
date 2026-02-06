@@ -1,23 +1,32 @@
 import { AppError } from "../../core/errors/AppError";
 import { ExecuteHandler } from "../../core/handlers/executeHandler";
+import { IJWTService } from "../../share/services/interfaces/IJWTService";
 import { professionalData } from "./dtos/professional.dto.schema";
-import { InsertProfessional, Professional, UpdateProfessional } from "./dtos/professional.dto.type";
+import { Professional } from "./dtos/professional.dto.type";
 import { ProfessionalRepository } from "./professional.repository";
 
 export class ProfessionalService {
   constructor(
     private readonly execute: ExecuteHandler,
     private readonly repo: ProfessionalRepository,
+    private readonly jwt: IJWTService,
   ) {}
 
-  public create(businessId: string, data: professionalData): Promise<any> {
+  public create(token: string, data: professionalData): Promise<any> {
     return this.execute.service(
       async () => {
-        const allowedRoles = ["ADMIN", "MANAGER"]
-        if (!businessId) throw new AppError("businessId ausente ou inválido")
-        if (!allowedRoles.includes(data.role)) throw new AppError("Usuário não autorizado para ação!")
+         const jwtToken = await this.jwt.verify(token)
 
-        const result = await this.repo.create({businesses_id: businessId, ...data});
+         if (
+          !jwtToken ||
+          !jwtToken.sub ||
+          !jwtToken.scope ||
+          jwtToken.purpose !== "ACCESS_TOKEN"
+        ) {
+          throw new AppError("Token ausente ou inválido!", 401);
+        }
+
+        const result = await this.repo.create({businesses_id: jwtToken.scope, ...data});
 
         return result;
       },
@@ -26,12 +35,21 @@ export class ProfessionalService {
     );
   }
 
-  public getByIdBusiness(businessId: string): Promise<Professional[]> {
+  public getByIdBusiness(token: string): Promise<Professional[]> {
     return this.execute.service(
       async () => {
-        if (!businessId) throw new AppError("businessId ausente ou inválido")
+         const jwtToken = await this.jwt.verify(token)
 
-        const result = await this.repo.getByIdBusiness(businessId);
+         if (
+          !jwtToken ||
+          !jwtToken.sub ||
+          !jwtToken.scope ||
+          jwtToken.purpose !== "ACCESS_TOKEN"
+        ) {
+          throw new AppError("Token ausente ou inválido!", 401);
+        }
+
+        const result = await this.repo.getByIdBusiness(jwtToken.scope);
 
         return result;
       },
@@ -43,8 +61,6 @@ export class ProfessionalService {
   public update(professional_id: number, data: professionalData): Promise<any> {
     return this.execute.service(
       async () => {
-        const allowedRoles = ["ADMIN", "MANAGER"]
-        if (!allowedRoles.includes(data.role)) throw new AppError("Usuário não autorizado para ação!")
 
           const result = await this.repo.update(professional_id, {name: data.name, specialty: data.specialty});
 

@@ -3,48 +3,59 @@ import request from "supertest";
 import { businesses, no_show_rules } from "../../../database/Schemas";
 import { db } from "../../../database/Client";
 import { app } from "../../../app";
+import { getCookies, saveCookies } from "../../../config/test";
 
 describe("NoShowRole E2E Routes", () => {
   let testBusinessId: string;
   let createdRuleId: number;
 
-  beforeAll(async () => {
-    const [biz] = await db.insert(businesses).values({
-      name: "Empresa de Teste",
-      email: "financeiro@teste.com",
-      phone: "1199999999",
-      active: true
-    }).returning();
+  it("deve criar uma conta", async () => {
+    const response = await request(app).post("/api/v1/auth/register").send({
+      name: "João",
+      nameBusiness: "lojaTest",
+      phone: "+55 (99) 000009999",
+      email: "joao@email.com",
+      password: "DevAdmin@26",
+      confirmPassword: "DevAdmin@26",
+    });
 
-    testBusinessId = biz.id;
+    saveCookies(response);
+    
+    expect(response.status).toBe(201);
+    
+    expect(response.body).toHaveProperty("usersData");
+    expect(response.body).toHaveProperty("businessData");
+    
+    expect(response.headers["set-cookie"]).toBeDefined();
+    testBusinessId = response.body.usersData.business_id
   });
 
   describe("POST /rules", () => {
     it("deve criar uma regra de no-show com sucesso", async () => {
       const payload = {
         max_rate_percent: 15,
-        action: "require_deposit"
+        action: "require_deposit",
       };
 
       const response = await request(app)
         .post("/api/v1/no-show/rules")
-        .set("Cookie", [`businessId=${testBusinessId}`])
+        .set("Cookie", getCookies())
         .send(payload);
 
       expect(response.status).toBe(200);
       expect(response.body.max_rate_percent).toBe(15);
       expect(response.body.businesses_id).toBe(testBusinessId);
-      
+
       createdRuleId = response.body.id;
     });
 
     it("deve falhar se os dados não seguirem o schema (max_rate não numérico)", async () => {
       const response = await request(app)
         .post("/api/v1/no-show/rules")
-        .set("Cookie", [`businessId=${testBusinessId}`])
+        .set("Cookie", getCookies())
         .send({ max_rate_percent: "muito alto", action: "block_booking" });
 
-      expect(response.status).toBe(400); // Middleware de validação
+      expect(response.status).toBe(400);
     });
   });
 
@@ -52,7 +63,7 @@ describe("NoShowRole E2E Routes", () => {
     it("deve buscar as regras vinculadas ao businessId do cookie", async () => {
       const response = await request(app)
         .get("/api/v1/no-show/rules")
-        .set("Cookie", [`businessId=${testBusinessId}`]);
+        .set("Cookie", getCookies());
 
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body)).toBe(true);
@@ -66,7 +77,7 @@ describe("NoShowRole E2E Routes", () => {
         .put(`/api/v1/no-show/rules/${createdRuleId}`)
         .send({
           max_rate_percent: 30,
-          action: "manual_approval"
+          action: "manual_approval",
         });
 
       expect(response.status).toBe(200);
@@ -77,8 +88,9 @@ describe("NoShowRole E2E Routes", () => {
 
   describe("DELETE /rules/:noShowRule_id", () => {
     it("deve deletar a regra e retornar 204", async () => {
-      const response = await request(app)
-        .delete(`/api/v1/no-show/rules/${createdRuleId}`);
+      const response = await request(app).delete(
+        `/api/v1/no-show/rules/${createdRuleId}`,
+      );
 
       expect(response.status).toBe(204);
       const check = await db.select().from(no_show_rules);

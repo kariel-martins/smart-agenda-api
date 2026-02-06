@@ -1,10 +1,13 @@
 import { app } from "./app";
 import { env } from "./config/env";
+import { startJobs } from "./database/jobs/notifications/index.job";
 
 const { port } = env()
 
 async function bootstrap() {
     try {
+        startJobs()
+
         app.listen(port, () => {
             console.log("Servido rondado na porta: ", port)
         })

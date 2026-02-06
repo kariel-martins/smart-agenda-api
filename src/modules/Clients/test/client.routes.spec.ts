@@ -2,27 +2,38 @@ import request from "supertest";
 import { db } from "../../../database/Client";
 import { businesses, clients } from "../../../database/Schemas";
 import { app } from "../../../app";
+import { getCookies, saveCookies } from "../../../config/test";
 
 describe("Client E2E Routes", () => {
   let testBusinessId: string;
   let createdClientId: string;
 
-  beforeAll(async () => {
-    const [biz] = await db.insert(businesses).values({
-      name: "Barbearia Teste",
-      email: "contato@barber.com",
-      phone: "123456789",
-      active: true
-    }).returning();
-
-    testBusinessId = biz.id;
-  });
+  it("deve criar uma conta", async () => {
+      const response = await request(app).post("/api/v1/auth/register").send({
+        name: "Maria",
+        nameBusiness: "lojaTest@15",
+        phone: "+55 (99) 000009999",
+        email: "mariaTest@email.com",
+        password: "DevAdmin@26",
+        confirmPassword: "DevAdmin@26",
+      });
+  
+      saveCookies(response);
+      expect(response.status).toBe(201);
+  
+      expect(response.body).toHaveProperty("usersData");
+      expect(response.body).toHaveProperty("businessData");
+  
+      expect(response.headers["set-cookie"]).toBeDefined();
+     
+      testBusinessId = response.body.usersData.business_id;
+    });
 
   describe("POST /clients", () => {
     it("deve criar um cliente com sucesso usando cookie de businessId", async () => {
       const response = await request(app)
         .post("/api/v1/clients")
-        .set("Cookie", [`businessId=${testBusinessId}`])
+        .set("Cookie", getCookies())
         .send({
           name: "Maria Souza",
           email: "maria@teste.com",
@@ -39,7 +50,7 @@ describe("Client E2E Routes", () => {
     it("deve retornar 400 se o email for inválido (Zod)", async () => {
       const response = await request(app)
         .post("/api/v1/clients")
-        .set("Cookie", [`businessId=${testBusinessId}`])
+        .set("Cookie", getCookies())
         .send({
           name: "Invalido",
           email: "email-errado",
@@ -54,7 +65,7 @@ describe("Client E2E Routes", () => {
     it("deve listar todos os clientes do negócio via cookie", async () => {
       const response = await request(app)
         .get("/api/v1/clients")
-        .set("Cookie", [`businessId=${testBusinessId}`]);
+        .set("Cookie", getCookies());
 
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body)).toBe(true);

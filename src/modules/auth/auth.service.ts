@@ -28,9 +28,9 @@ export class AuthService {
 
         await this.repo.getUserNotExists(data.email);
 
-       if (!data.confirmPassword || data.password !== data.confirmPassword) {
-  throw new AppError("Senhas não coincidem", 400);
-}
+        if (!data.confirmPassword || data.password !== data.confirmPassword) {
+          throw new AppError("Senhas não coincidem", 400);
+        }
 
         const password_hash = await this.crypt.hashText(data.password);
         const refreshToken = crypto.randomUUID();
@@ -42,6 +42,7 @@ export class AuthService {
           password_hash,
           tokenRefresh: refreshTokenHash,
           ...data,
+          role: "admin"
         });
 
         const refreshTokenJwt = await this.jwtService.sign(
@@ -57,6 +58,7 @@ export class AuthService {
           {
             purpose: "ACCESS_TOKEN",
             scope: businessData.id,
+            role: userData.user_role,
             sub: userData.id,
           },
           "15m",
@@ -116,7 +118,11 @@ export class AuthService {
         );
 
         const accessToken = await this.jwtService.sign(
-          { purpose: "ACCESS_TOKEN", scope: businesses.id, sub: restUsers.id },
+          { purpose: "ACCESS_TOKEN", 
+            scope: businesses.id, 
+            role: restUsers.user_role,
+            sub: restUsers.id
+           },
           "15m",
         );
 
@@ -144,8 +150,6 @@ export class AuthService {
         let validToken = null;
         const expiresAt = new Date();
         expiresAt.setDate(expiresAt.getDate() + 2);
-
-        if (!refresh_token) throw new AppError("Token ausente ou inválido!");
 
         const jwtToken = await this.jwtService.verify(refresh_token);
 
@@ -188,6 +192,8 @@ export class AuthService {
           expires_at: expiresAt,
         });
 
+        const user = await this.repo.getById(newTokenRefresh.user_id)
+
         await this.repo.updateRefreshToken(validToken?.id, {
           revoked: true,
         });
@@ -204,8 +210,9 @@ export class AuthService {
         const newAccessToken = await this.jwtService.sign(
           {
             purpose: "ACCESS_TOKEN",
-            scope: crypto.randomUUID(),
-            sub: jwtToken.sub,
+            scope: user.business_id,
+            role: user.user_role,
+            sub: user.id,
           },
           "15m",
         );

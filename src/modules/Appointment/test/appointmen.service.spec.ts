@@ -1,8 +1,10 @@
 import { AppError } from "../../../core/errors/AppError";
+import { IJWTService } from "../../../share/services/interfaces/IJWTService";
 import { AppointmentService } from "../appointment.service";
 
 describe("AppointmentService", () => {
   let service: AppointmentService;
+  let jwtMock: jest.Mocked<IJWTService>;
   let repoMock: any;
   let executeMock: any;
 
@@ -17,27 +19,56 @@ describe("AppointmentService", () => {
       update: jest.fn(),
     };
 
-    service = new AppointmentService(executeMock, repoMock);
+    jwtMock = {
+      sign: jest.fn(),
+      verify: jest.fn()
+    } as any;
+
+    service = new AppointmentService(executeMock, repoMock, jwtMock);
+
+    jest.clearAllMocks();
   });
 
   describe("create", () => {
-    it("deve criar um agendamento com sucesso", async () => {
-      const mockData = { professional_id: "1", service_id: "2", client_id: "c1" };
+    it("deve criar um agendamento extraindo o businessId da propriedade 'scope' do token", async () => {
+
+      const accessToken = "token_com_scope_business";
       const businessId = "bus_123";
+      const mockData = { professional_id: 1, service_id: 2, client_id: "c1" };
+
+      jwtMock.verify.mockReturnValue({ 
+        purpose: "ACCESS_TOKEN",
+        scope: businessId, 
+        sub: "user_1" 
+      } as any); 
       
       repoMock.create.mockResolvedValue({ id: 1, ...mockData, businesses_id: businessId });
 
-      const result = await service.create(businessId, mockData as any);
+      const result = await service.create(accessToken, mockData as any);
 
+      expect(jwtMock.verify).toHaveBeenCalledWith(accessToken);
+      
       expect(repoMock.create).toHaveBeenCalledWith(expect.objectContaining({
-        professional_id: 1,
-        businesses_id: businessId
+        businesses_id: businessId,
+        professional_id: 1
       }));
+      
       expect(result.id).toBe(1);
     });
 
-    it("deve lançar AppError se businessId estiver ausente", async () => {
-      await expect(service.create("", {} as any))
+    it("deve lançar AppError se o token estiver corrompido ou sem scope", async () => {
+      jwtMock.verify.mockReturnValue({ purpose: "ACCESS_TOKEN" } as any);
+
+      await expect(service.create("token_zoado", {} as any))
+        .rejects.toThrow(AppError);
+    });
+
+    it("deve lançar AppError se o JWT.verify disparar um erro (token expirado/inválido)", async () => {
+      jwtMock.verify.mockImplementation(() => {
+        throw new AppError("Não autorizado", 401);
+      });
+
+      await expect(service.create("token_expirado", {} as any))
         .rejects.toThrow(AppError);
     });
   });

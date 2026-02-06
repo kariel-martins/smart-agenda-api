@@ -1,5 +1,6 @@
 import { AppError } from "../../../core/errors/AppError";
 import { ExecuteHandler } from "../../../core/handlers/executeHandler";
+import { IJWTService } from "../../../share/services/interfaces/IJWTService";
 import { BusinessRepository } from "../business.repository";
 import { BusinessService } from "../business.service";
 
@@ -7,18 +8,18 @@ describe("BusinessService", () => {
   let executeHandler: ExecuteHandler;
   let repoMock: jest.Mocked<BusinessRepository>;
   let service: BusinessService;
+  let jwtMock: jest.Mocked<IJWTService>;
 
   const mockBusiness = {
-  id: "1",
-  name: "test",
-  slug: null, // permitido pelo tipo
-  phone: "99 9 8283-8342",
-  email: "teste@email.com",
-  active: true,
-  timezone: "São paulo",
-  created_at: new Date("2030-03-20"),
-};
-
+    id: "bus_123",
+    name: "test",
+    slug: null,
+    phone: "99 9 8283-8342",
+    email: "teste@email.com",
+    active: true,
+    timezone: "São paulo",
+    created_at: new Date("2030-03-20"),
+  };
 
   beforeEach(() => {
     executeHandler = new ExecuteHandler();
@@ -26,63 +27,73 @@ describe("BusinessService", () => {
     repoMock = {
       getById: jest.fn(),
       update: jest.fn(),
-    } as unknown as jest.Mocked<BusinessRepository>;
+    } as any;
 
-    service = new BusinessService(executeHandler, repoMock);
+    jwtMock = {
+      sign: jest.fn(),
+      verify: jest.fn(),
+    } as any;
+
+    service = new BusinessService(executeHandler, repoMock, jwtMock);
 
     jest.clearAllMocks();
   });
 
   describe("getById", () => {
-    it("deve retornar o business quando encontrado", async () => {
+    it("deve retornar o business extraindo o ID do token (scope)", async () => {
+      const fakeToken = "token_valido";
+      
+      jwtMock.verify.mockResolvedValue({
+        purpose: "ACCESS_TOKEN",
+        scope: "bus_123", 
+        sub: "user_id_1"
+      } as any);
+
       repoMock.getById.mockResolvedValue(mockBusiness);
 
-      const result = await service.getById("1");
+      const result = await service.getById(fakeToken);
 
-      expect(repoMock.getById).toHaveBeenCalledTimes(1);
-      expect(repoMock.getById).toHaveBeenCalledWith("1");
+      expect(jwtMock.verify).toHaveBeenCalledWith(fakeToken);
+      expect(repoMock.getById).toHaveBeenCalledWith("bus_123");
       expect(result).toEqual(mockBusiness);
     });
 
-    it("deve lançar AppError quando id é vazio", async () => {
-      await expect(service.getById("")).rejects.toBeInstanceOf(AppError);
-    });
+    it("deve lançar AppError quando o token não contém o scope", async () => {
+      jwtMock.verify.mockResolvedValue({ purpose: "ACCESS_TOKEN" } as any);
 
-    it("deve lançar AppError 500 quando repositório falhar", async () => {
-      repoMock.getById.mockRejectedValue(new Error("DB error"));
-
-      const result = service.getById("1");
-
-      await expect(result).rejects.toBeInstanceOf(AppError);
+      await expect(service.getById("token_sem_scope"))
+        .rejects.toBeInstanceOf(AppError);
     });
   });
 
   describe("update", () => {
-    it("deve atualizar o business corretamente", async () => {
+    it("deve atualizar o business usando o ID do token", async () => {
+      const businessId = "bus_123";
+
+      jwtMock.verify.mockReturnValue({
+        purpose: "ACCESS_TOKEN",
+        scope: businessId,
+        role: "staff",
+        sub: "user_1",
+      } as any);
+
+
       repoMock.update.mockResolvedValue({
         ...mockBusiness,
         name: "updated",
       });
 
-      const result = await service.update("1", { name: "updated" });
+      const result = await service.update(businessId, { name: "updated" });
 
-      expect(repoMock.update).toHaveBeenCalledTimes(1);
-      expect(repoMock.update).toHaveBeenCalledWith("1", { name: "updated" });
+      expect(repoMock.update).toHaveBeenCalledWith("bus_123", { name: "updated" });
       expect(result.name).toBe("updated");
     });
 
-    it("deve lançar AppError ao tentar atualizar com id vazio", async () => {
-      await expect(
-        service.update("", { name: "updated" })
-      ).rejects.toBeInstanceOf(AppError);
-    });
+    it("deve lançar AppError se o token for inválido", async () => {
+      jwtMock.verify.mockRejectedValue(new AppError("Não autorizado", 401));
 
-    it("deve lançar AppError 500 quando update falhar no repositório", async () => {
-      repoMock.update.mockRejectedValue(new Error("Update error"));
-
-      const result = service.update("1", { name: "updated" });
-
-      await expect(result).rejects.toBeInstanceOf(AppError);
+      await expect(service.update("token_invalido", { name: "novo" }))
+        .rejects.toBeInstanceOf(AppError);
     });
   });
 });

@@ -1,5 +1,6 @@
 import { AppError } from "../../core/errors/AppError";
 import { ExecuteHandler } from "../../core/handlers/executeHandler";
+import { IJWTService } from "../../share/services/interfaces/IJWTService";
 import { InsertService, Service, UpdateService } from "./dtos/service.dto.type";
 import { ServiceRepository } from "./service.repository";
 
@@ -7,16 +8,26 @@ export class ServiceService {
   constructor(
     private readonly execute: ExecuteHandler,
     private readonly repo: ServiceRepository,
+    private readonly jwt: IJWTService,
   ) {}
 
-  public create(businessId: string, data: InsertService): Promise<any> {
+  public create(token: string, data: InsertService): Promise<any> {
     return this.execute.service(
       async () => {
-        if (!businessId) throw new AppError("businessId inválido ou ausente!");
+         const jwtToken = await this.jwt.verify(token)
+
+         if (
+          !jwtToken ||
+          !jwtToken.sub ||
+          !jwtToken.scope ||
+          jwtToken.purpose !== "ACCESS_TOKEN"
+        ) {
+          throw new AppError("Token ausente ou inválido!", 401);
+        }
 
         const result = await this.repo.create({
           ...data,
-          businesses_id: businessId,
+          businesses_id: jwtToken.scope,
         });
 
         return result;
@@ -26,13 +37,22 @@ export class ServiceService {
     );
   }
 
-  public getById(businessId: string): Promise<Service[]> {
+  public getById(token: string): Promise<Service[]> {
     return this.execute.service(
       async () => {
 
-        if (!businessId) throw new AppError("businessId inválido ou ausente!");
+         const jwtToken = await this.jwt.verify(token)
 
-        const result = await this.repo.getById(businessId);
+         if (
+          !jwtToken ||
+          !jwtToken.sub ||
+          !jwtToken.scope ||
+          jwtToken.purpose !== "ACCESS_TOKEN"
+        ) {
+          throw new AppError("Token ausente ou inválido!", 401);
+        }
+
+        const result = await this.repo.getById(jwtToken.scope);
 
         return result;
       },

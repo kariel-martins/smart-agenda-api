@@ -17,7 +17,7 @@ export type UserAndBusiness = {
     users: User,
     businesses: Business
 }
-
+type roleType = "admin" | "manager" | "staff"
 export type CreateUserWithBusiness = {
   email: string;
   name: string;
@@ -25,6 +25,7 @@ export type CreateUserWithBusiness = {
   phone: string;
   password_hash: string;
   tokenRefresh: string
+  role: roleType
 };
 
 export type tokensWithUserAndBusiness = {

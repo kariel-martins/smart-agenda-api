@@ -1,5 +1,6 @@
 import { AppError } from "../../core/errors/AppError";
 import { ExecuteHandler } from "../../core/handlers/executeHandler";
+import { IJWTService } from "../../share/services/interfaces/IJWTService";
 import { AppointmentRepository } from "./appointment.repository";
 import {
   Appointment,
@@ -11,18 +12,29 @@ export class AppointmentService {
   constructor(
     private readonly execute: ExecuteHandler,
     private readonly repo: AppointmentRepository,
+    private readonly jwt: IJWTService,
   ) {}
 
-  public create(businessId: string, data: InsertAppointment): Promise<Appointment> {
+  public create(token: string, data: InsertAppointment): Promise<Appointment> {
     return this.execute.service(
       async () => {
-        if (!businessId) throw new AppError("businessId inválido ou ausente!");
+        const jwtToken = await this.jwt.verify(token)
+
+         if (
+          !jwtToken ||
+          !jwtToken.sub ||
+          !jwtToken.scope ||
+          jwtToken.purpose !== "ACCESS_TOKEN"
+        ) {
+          throw new AppError("Token ausente ou inválido!", 401);
+        }
+
         
         const result = await this.repo.create({
           ...data,
           professional_id: Number(data.professional_id),
           service_id: Number(data.service_id),
-          businesses_id: businessId,
+          businesses_id: jwtToken.scope,
         });
 
         return result;

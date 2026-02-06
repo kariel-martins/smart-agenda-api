@@ -6,14 +6,6 @@ export const createUser: RequestHandler = async (req, res, next) => {
     const service = makeAuthService();
     const result = await service.registerUser(req.body);
 
-    res.cookie("businessId", result.businessData.id, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 1000 * 60 * 60 * 48, // 2 dias
-      path: "/",
-    });
-
     res.cookie("refreshToken", result.refresh_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -46,14 +38,6 @@ export const login: RequestHandler = async (req, res, next) => {
   try {
     const service = makeAuthService();
     const result = await service.login(req.body);
-
-    res.cookie("businessId", result.businessData.id, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 1000 * 60 * 60 * 48, // 2 dias
-      path: "/",
-    });
 
     res.cookie("refreshToken", result.refresh_token, {
       httpOnly: true,

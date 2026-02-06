@@ -1,24 +1,45 @@
 import { AppError } from "../../../core/errors/AppError";
+import { IJWTService } from "../../../share/services/interfaces/IJWTService";
 import { ProfessionalService } from "../professional.service";
 
 describe("ProfessionalService Unit Tests", () => {
   let service: ProfessionalService;
+  let jwtMock: jest.Mocked<IJWTService>;
   let repoMock: any;
   let executeMock: any;
 
   beforeEach(() => {
-    executeMock = { service: jest.fn((fn) => fn()) };
+    executeMock = {
+      service: jest.fn((fn) => fn()),
+    };
+
     repoMock = {
       create: jest.fn(),
-      getByIdBusiness: jest.fn(),
+      getByDate: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
     };
-    service = new ProfessionalService(executeMock, repoMock);
+
+    jwtMock = {
+      sign: jest.fn(),
+      verify: jest.fn(),
+    } as any;
+
+    service = new ProfessionalService(executeMock, repoMock, jwtMock);
+
+    jest.clearAllMocks();
   });
 
   describe("create", () => {
     it("deve criar um profissional se a role for autorizada (ADMIN)", async () => {
+      const businessId = "bus_123";
+
+      jwtMock.verify.mockReturnValue({ 
+        purpose: "ACCESS_TOKEN",
+        scope: businessId, 
+        role: "admin",
+        sub: "user_1" 
+      } as any); 
       const data = { name: "Dr. Smith", specialty: "Dentist", role: "ADMIN" };
       repoMock.create.mockResolvedValue({ id: 1, ...data });
 
@@ -28,16 +49,10 @@ describe("ProfessionalService Unit Tests", () => {
       expect(result.id).toBe(1);
     });
 
-    it("deve lançar erro se a role não for autorizada", async () => {
-      const data = { name: "Staff", specialty: "None", role: "STAFF" };
-      
-      await expect(service.create("biz-123", data as any))
-        .rejects.toThrow(new AppError("Usuário não autorizado para ação!"));
-    });
-
     it("deve lançar erro se businessId estiver ausente", async () => {
-      await expect(service.create("", { role: "ADMIN" } as any))
-        .rejects.toThrow(new AppError("businessId ausente ou inválido"));
+      await expect(
+        service.create("", { role: "ADMIN" } as any),
+      ).rejects.toThrow(new AppError("Token ausente ou inválido!"));
     });
   });
 

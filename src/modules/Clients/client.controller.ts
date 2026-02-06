@@ -1,13 +1,12 @@
 import { RequestHandler } from "express";
-import { AppError } from "../../core/errors/AppError";
 import { makeClientService } from "./client.factory";
 
 const service = makeClientService();
 
 export const create: RequestHandler = async (req, res, next) => {
   try {
-    const businessId = req.cookies.businessId
-    const result = await service.create(businessId, req.body);
+    const token = req.cookies.accessToken;
+    const result = await service.create(token, req.body);
 
     return res.status(200).json(result);
   } catch (error) {
@@ -18,8 +17,8 @@ export const create: RequestHandler = async (req, res, next) => {
 
 export const getById: RequestHandler = async (req, res, next) => {
   try {
-    const businessId = req.cookies.businessId
-    const result = await service.getById(businessId);
+    const token = req.cookies.accessToken;
+    const result = await service.getById(token);
 
     return res.status(200).json(result);
   } catch (error) {

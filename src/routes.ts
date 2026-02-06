@@ -7,6 +7,7 @@ import { clientRoute } from "./modules/Clients/client.route"
 import { availabilityRoute } from "./modules/Availiability/availiablility.route"
 import { appointmentRoute } from "./modules/Appointment/appointment.route"
 import { noShowRuleRoute } from "./modules/NoShowRule/noShowRole.route"
+import { notificationRoute } from "./modules/NotificationLog/notifications.routes"
 
 const router = Router()
 
@@ -22,5 +23,6 @@ router.use("/api/v1/clients", clientRoute)
 router.use("/api/v1/availability", availabilityRoute)
 router.use("/api/v1/appointments", appointmentRoute)
 router.use("/api/v1/no-show", noShowRuleRoute)
+router.use("/api/v1/notifications", notificationRoute)
 
 export { router }

@@ -2,20 +2,31 @@ import { ExecuteHandler } from "../../core/handlers/executeHandler";
 import { InsertClient, Client, UpdateClient } from "./dtos/client.dto.type";
 import { ClientRepository } from "./client.repository";
 import { AppError } from "../../core/errors/AppError";
+import { IJWTService } from "../../share/services/interfaces/IJWTService";
 
 export class ClientService {
   constructor(
     private readonly execute: ExecuteHandler,
     private readonly repo: ClientRepository,
+    private readonly jwt: IJWTService,
   ) {}
 
-  public create(businessId: string, data: InsertClient): Promise<any> {
+  public create(token: string, data: InsertClient): Promise<any> {
     return this.execute.service(
       async () => {
 
-         if (!businessId) throw new AppError("businessId inválido ou ausente!");
+         const jwtToken = await this.jwt.verify(token)
 
-        const result = await this.repo.create({...data, businesses_id: businessId});
+         if (
+          !jwtToken ||
+          !jwtToken.sub ||
+          !jwtToken.scope ||
+          jwtToken.purpose !== "ACCESS_TOKEN"
+        ) {
+          throw new AppError("Token ausente ou inválido!", 401);
+        }
+
+        const result = await this.repo.create({...data, businesses_id: jwtToken.scope});
 
         return result;
       },
@@ -24,10 +35,20 @@ export class ClientService {
     );
   }
 
-  public getById(businessId: string): Promise<Client[]> {
+  public getById(token: string): Promise<Client[]> {
     return this.execute.service(
       async () => {
-        const result = await this.repo.getById(businessId);
+         const jwtToken = await this.jwt.verify(token)
+
+         if (
+          !jwtToken ||
+          !jwtToken.sub ||
+          !jwtToken.scope ||
+          jwtToken.purpose !== "ACCESS_TOKEN"
+        ) {
+          throw new AppError("Token ausente ou inválido!", 401);
+        }
+        const result = await this.repo.getById(jwtToken.scope);
 
         return result;
       },

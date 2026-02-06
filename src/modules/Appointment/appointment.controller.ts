@@ -6,8 +6,8 @@ const Appointment = makeAppointmentService()
 
 export const create: RequestHandler = async (req, res, next) => {
   try {
-    const businessId = req.cookies.businessId
-    const result = await Appointment.create(businessId, req.body);
+    const token = req.cookies.accessToken;
+    const result = await Appointment.create(token, req.body);
 
     return res.status(200).json(result);
   } catch (error) {
