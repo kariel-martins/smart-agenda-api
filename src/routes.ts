@@ -8,6 +8,7 @@ import { availabilityRoute } from "./modules/Availiability/availiablility.route"
 import { appointmentRoute } from "./modules/Appointment/appointment.route"
 import { noShowRuleRoute } from "./modules/NoShowRule/noShowRole.route"
 import { notificationRoute } from "./modules/NotificationLog/notifications.routes"
+import { Authorization } from "./share/middlewares/Autentications"
 
 const router = Router()
 
@@ -17,11 +18,11 @@ router.get("/", (_req: Request, res: Response) => {
 
 router.use("/api/v1/auth", authRoute)
 router.use("/api/v1/business", businessRoute)
-router.use("/api/v1/professionals", professionalRoute)
-router.use("/api/v1/services", serviceRoute)
-router.use("/api/v1/clients", clientRoute)
-router.use("/api/v1/availability", availabilityRoute)
-router.use("/api/v1/appointments", appointmentRoute)
+router.use("/api/v1/professionals", Authorization(["admin"]), professionalRoute)
+router.use("/api/v1/services", Authorization(["admin"]), serviceRoute)
+router.use("/api/v1/clients", Authorization(["admin", "manager", "staff"]),clientRoute)
+router.use("/api/v1/availability", Authorization(["admin","manager", "staff"]), availabilityRoute)
+router.use("/api/v1/appointments", Authorization(["admin","manager", "staff"]),appointmentRoute)
 router.use("/api/v1/no-show", noShowRuleRoute)
 router.use("/api/v1/notifications", notificationRoute)
 
