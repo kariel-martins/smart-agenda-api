@@ -1,7 +1,6 @@
-// service.e2e.spec.ts
 import request from "supertest";
 import { db } from "../../../database/Client";
-import { businesses, services } from "../../../database/Schemas";
+import { services } from "../../../database/Schemas";
 import { app } from "../../../app";
 import { getCookies, saveCookies } from "../../../config/test";
 
@@ -10,35 +9,34 @@ describe("Service E2E Routes", () => {
   let createdServiceId: number;
 
   it("deve criar uma conta", async () => {
-      const response = await request(app).post("/api/v1/auth/register").send({
-        name: "Maria",
-        nameBusiness: "lojaTest@15",
-        phone: "+55 (99) 000009999",
-        email: "mariaTest@email.com",
-        password: "DevAdmin@26",
-        confirmPassword: "DevAdmin@26",
-      });
-  
-      saveCookies(response);
-      expect(response.status).toBe(201);
-  
-      expect(response.body).toHaveProperty("usersData");
-      expect(response.body).toHaveProperty("businessData");
-  
-      expect(response.headers["set-cookie"]).toBeDefined();
-      testBusinessId = response.body.usersData.business_id;
+    const response = await request(app).post("/api/v1/auth/register").send({
+      name: "Maria",
+      nameBusiness: "lojaTest@15",
+      phone: "+55 (99) 000009999",
+      email: "mariaTest@email.com",
+      password: "DevAdmin@26",
+      confirmPassword: "DevAdmin@26",
     });
+
+    saveCookies(response);
+    expect(response.status).toBe(201);
+
+    expect(response.body).toHaveProperty("usersData");
+    expect(response.body).toHaveProperty("businessData");
+
+    expect(response.headers["set-cookie"]).toBeDefined();
+    testBusinessId = response.body.usersData.business_id;
+  });
 
   describe("POST /services", () => {
     it("deve criar um serviço e retornar 201", async () => {
       const response = await request(app)
         .post("/api/v1/services")
-        .set("Cookie", getCookies())
         .send({
           name: "Barba e Cabelo",
           duration_minutes: "60",
-          price: "80.00"
-        });
+          price: "80.00",
+        }).set("Cookie", getCookies());
 
       expect(response.status).toBe(201);
       expect(response.body.name).toBe("Barba e Cabelo");
@@ -62,10 +60,11 @@ describe("Service E2E Routes", () => {
     it("deve atualizar os valores do serviço", async () => {
       const response = await request(app)
         .put(`/api/v1/services/${createdServiceId}`)
+        .set("Cookie", getCookies())
         .send({
           name: "Barba, Cabelo e Bigode",
           duration_minutes: "90",
-          price: "100.00"
+          price: "100.00",
         });
 
       expect(response.status).toBe(200);
@@ -76,7 +75,7 @@ describe("Service E2E Routes", () => {
   describe("DELETE /services/:services_id", () => {
     it("deve remover o serviço e retornar 204", async () => {
       const response = await request(app)
-        .delete(`/api/v1/services/${createdServiceId}`);
+        .delete(`/api/v1/services/${createdServiceId}`).set("Cookie", getCookies());;
 
       expect(response.status).toBe(204);
 

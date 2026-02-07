@@ -77,6 +77,7 @@ describe("Client E2E Routes", () => {
     it("deve atualizar os dados do cliente", async () => {
       const response = await request(app)
         .put(`/api/v1/clients/${createdClientId}`)
+        .set("Cookie", getCookies())
         .send({
           name: "Maria Souza Silva",
           email: "maria.silva@teste.com",
@@ -91,7 +92,7 @@ describe("Client E2E Routes", () => {
   describe("DELETE /clients/:client_id", () => {
     it("deve remover o cliente e retornar 204", async () => {
       const response = await request(app)
-        .delete(`/api/v1/clients/${createdClientId}`);
+        .delete(`/api/v1/clients/${createdClientId}`).set("Cookie", getCookies());
 
       expect(response.status).toBe(204);
 

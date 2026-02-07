@@ -1,4 +1,3 @@
-// noShowRole.e2e.spec.ts
 import request from "supertest";
 import { businesses, no_show_rules } from "../../../database/Schemas";
 import { db } from "../../../database/Client";

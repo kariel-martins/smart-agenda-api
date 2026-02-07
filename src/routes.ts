@@ -9,6 +9,7 @@ import { appointmentRoute } from "./modules/Appointment/appointment.route"
 import { noShowRuleRoute } from "./modules/NoShowRule/noShowRole.route"
 import { notificationRoute } from "./modules/NotificationLog/notifications.routes"
 import { Authorization } from "./share/middlewares/Autentications"
+import { usersRoute } from "./modules/Users/users.route"
 
 const router = Router()
 
@@ -25,5 +26,6 @@ router.use("/api/v1/availability", Authorization(["admin","manager", "staff"]), 
 router.use("/api/v1/appointments", Authorization(["admin","manager", "staff"]),appointmentRoute)
 router.use("/api/v1/no-show", noShowRuleRoute)
 router.use("/api/v1/notifications", notificationRoute)
+router.use("/api/v1/users", Authorization(["admin"]),usersRoute)
 
 export { router }

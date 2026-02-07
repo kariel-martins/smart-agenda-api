@@ -1,7 +1,8 @@
 import { RequestHandler } from "express";
-import { makeProfessionalService } from "./professional.factory";
+import { makeUsersService } from "./users.factory";
 
-const service = makeProfessionalService()
+
+const service = makeUsersService()
 
 export const create: RequestHandler = async (req, res, next) => {
   try {
@@ -17,8 +18,20 @@ export const create: RequestHandler = async (req, res, next) => {
 
 export const getById: RequestHandler = async (req, res, next) => {
   try {
+    const { user_id } = req.params as { user_id: string}
+    const result = await service.getAll(user_id);
+
+    return res.status(200).json(result);
+  } catch (error) {
+    if (res.headersSent) return
+    return next(error);
+  }
+};
+
+export const getAll: RequestHandler = async (req, res, next) => {
+  try {
     const token = req.cookies.accessToken;
-    const result = await service.getByIdBusiness(token);
+    const result = await service.getAll(token);
 
     return res.status(200).json(result);
   } catch (error) {
@@ -29,8 +42,8 @@ export const getById: RequestHandler = async (req, res, next) => {
 
 export const update: RequestHandler = async (req, res, next) => {
   try {
-    const { professional_id } = req.params
-    const result = await service.update(Number(professional_id), req.body);
+    const { user_id } = req.params as { user_id: string}
+    const result = await service.update(user_id, req.body);
 
     return res.status(200).json(result);
   } catch (error) {
@@ -42,8 +55,8 @@ export const update: RequestHandler = async (req, res, next) => {
 
 export const remove: RequestHandler = async (req, res, next) => {
   try {
-    const { professional_id } = req.params
-    const result = await service.delete(Number(professional_id));
+    const { user_id } = req.params as { user_id: string}
+    const result = await service.delete(user_id);
 
     return res.status(204).json(result);
   } catch (error) {

@@ -71,6 +71,7 @@ describe("Professional E2E Routes", () => {
     it("deve atualizar os dados do profissional", async () => {
       const response = await request(app)
         .put(`/api/v1/professionals/${createdProId}`)
+        .set("Cookie", getCookies())
         .send({
           name: "Lucas M. Silva",
           specialty: "Osteopatia",
@@ -84,9 +85,10 @@ describe("Professional E2E Routes", () => {
 
   describe("DELETE /:professional_id", () => {
     it("deve remover o profissional e retornar 204", async () => {
-      const response = await request(app).delete(
+      const response = await request(app)
+      .delete(
         `/api/v1/professionals/${createdProId}`,
-      );
+      ).set("Cookie", getCookies());
 
       expect(response.status).toBe(204);
 

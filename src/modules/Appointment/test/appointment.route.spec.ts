@@ -111,9 +111,10 @@ describe("Appointment E2E Flow", () => {
     });
 
     it("PATCH /confirm - Deve confirmar", async () => {
-      const response = await request(app).patch(
+      const response = await request(app)
+      .patch(
         `/api/v1/appointments/${appId}/confirm`,
-      );
+      ).set("Cookie", getCookies());
 
       expect(response.status).toBe(200);
       expect(response.body.status).toBe("confirmed");
@@ -122,6 +123,7 @@ describe("Appointment E2E Flow", () => {
     it("PATCH /cancel - Deve cancelar", async () => {
       const response = await request(app)
         .patch(`/api/v1/appointments/${appId}/cancel`)
+        .set("Cookie", getCookies())
         .send({ cancel_reason: "Mudança de planos" });
 
       expect(response.status).toBe(200);
