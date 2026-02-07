@@ -76,7 +76,7 @@ Antes de iniciar, certifique-se de ter instalado:
   
   ```env
   
-    NODE_ENV=
+    NODE_ENV=development
     
     PORT=
     
@@ -91,10 +91,31 @@ Antes de iniciar, certifique-se de ter instalado:
     DATABASE_URL=
   
   ```
-- Subir os containers:
+- Subir os containers postgres:
   ```bash
   
     docker-compose up -d
+  
+  ```
+- Subir os containers banco de dados testes:
+  ```bash
+  
+    docker-compose up -d postgres_test
+  
+  ```
+- Rodar a api:
+  ```bash
+  
+    npm run start:dev
+  
+  ```
+
+- Envia migrações ou fazer arquivos drizzle ou abrir a interface:
+  ```bash
+  
+    npm run db generate
+    npm run db migrate
+    npm run db studio
   
   ```
 - Rodar a api:
