@@ -15,16 +15,14 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "start:dev": "cross-env NODE_ENV=development  nodemon src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "start:dev": "cross-env NODE_ENV=development nodemon src/server.ts",
     "start:prod": "cross-env NODE_ENV=production  nodemon src/server.ts",
     "start:docker": "cross-env NODE_ENV=docker  nodemon src/server.ts",
     "test:e2e": "cross-env NODE_ENV=test jest --runInBand --watchAll --silent",
-    "docker-db:dev": "docker compose up -d postgres",
-    "docker-db:test": "docker compose up -d postgres-test",
-    "studio:test": "cross-env NODE_ENV=test drizzle-kit studio",
-    "studio:dev": "cross-env NODE_ENV=development drizzle-kit studio",
     "db:test": "cross-env NODE_ENV=test npx drizzle-kit",
-    "db": "cross-env NODE_ENV=development npx drizzle-kit"
+    "db": "npx drizzle-kit"
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.4.0",
