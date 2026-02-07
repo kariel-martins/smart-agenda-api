@@ -1,6 +1,6 @@
 {
   "name": "smart-agenda-api",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Smart agenda é uma api criada para solucionar problemas de pequenos e médios negócios que ainda utilizam o whatsApp ou planilhas para agendar seus serviços. ",
   "homepage": "https://github.com/kariel-martins/smart-agenda-api#readme",
   "bugs": {
@@ -15,7 +15,9 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "start:dev": "cross-env NODE_ENV=test  nodemon src/server.ts",
+    "start:dev": "cross-env NODE_ENV=development  nodemon src/server.ts",
+    "start:prod": "cross-env NODE_ENV=production  nodemon src/server.ts",
+    "start:docker": "cross-env NODE_ENV=docker  nodemon src/server.ts",
     "test:e2e": "cross-env NODE_ENV=test jest --runInBand --watchAll --silent",
     "docker-db:dev": "docker compose up -d postgres",
     "docker-db:test": "docker compose up -d postgres-test",

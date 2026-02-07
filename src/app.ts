@@ -1,20 +1,17 @@
 import express from "express"
 import cors from "cors"
-import { env } from "./config/env";
 import { router } from "./routes";
 import { errorHandler } from "./core/errors/errorHandler";
 import { setupSwagger } from "./config/swagger";
 import cookieParser from "cookie-parser"
 
-const { frontend_url } = env()
 const app = express()
 
 app.use(
   cors({
-    origin: frontend_url,
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "PATCH","DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
   })
 );
 
