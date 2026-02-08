@@ -20,7 +20,7 @@ function getRequireVars(key: string) {
 }
 
 export function env() {
-    const reqVars = ["PORT", "DEBUG", "BACKEND_URL", "SECRET_KEY", "DATABASE_URL_UNPOOLED"]
+    const reqVars = ["PORT", "DEBUG", "SECRET_KEY", "DATABASE_URL_UNPOOLED"]
 
     reqVars.forEach((key)=> {
         if (!process.env[key]) {
@@ -32,7 +32,6 @@ export function env() {
       port: Number(getRequireVars("PORT")) || 3421,
       database_url: getRequireVars("DATABASE_URL_UNPOOLED"),
       debug: getRequireVars("DEBUG"),
-      backend_url: getRequireVars("BACKEND_URL"),
       jwtKey: getRequireVars("SECRET_KEY"),
     }
 

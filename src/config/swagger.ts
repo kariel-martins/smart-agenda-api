@@ -2,9 +2,6 @@ import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import { Express } from "express";
 import { SwaggerTheme, SwaggerThemeName } from "swagger-themes";
-import { env } from "./env";
-
-const { backend_url } = env();
 
 const theme = new SwaggerTheme();
 const css = theme.getBuffer("dark"  as SwaggerThemeName);
@@ -31,7 +28,7 @@ Sistema de autenticação e gerenciamento do app Smart Agenda.
     },
     servers: [
       {
-        url: backend_url,
+        url: "/",
       },
     ],
   },
@@ -56,5 +53,5 @@ export const setupSwagger = (app: Express) => {
     })
   );
 
-  console.log(`📘 Swagger disponível em: ${backend_url}/api-docs`);
+  console.log(`📘 Swagger disponível em: /api-docs`);
 };
