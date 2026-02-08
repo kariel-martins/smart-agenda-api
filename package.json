@@ -13,9 +13,10 @@
   "license": "MIT",
   "author": "Kariel Martins",
   "type": "commonjs",
-  "main": "index.js",
+  "main": "dist/server.js",
   "scripts": {
     "build": "tsc",
+    "build-render": "npm install && npm run build",
     "start": "node dist/server.js",
     "start:dev": "cross-env NODE_ENV=development nodemon src/server.ts",
     "start:prod": "cross-env NODE_ENV=production  nodemon src/server.ts",
